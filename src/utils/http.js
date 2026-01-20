@@ -3,10 +3,10 @@
 // const BASE_URL = "/api";
 // App/H5打包生产环境，必须写成服务器完整地址
 // const BASE_URL = "http://107.174.50.174:5001";
-import { baseUrl } from "@/utils/baseUrl.js";
+import { baseUrl, imgBaseUrl } from "@/utils/baseUrl.js";
 
 const BASE_URL = baseUrl();
-const FILE_BASE_URL = BASE_URL;
+const FILE_BASE_URL = imgBaseUrl();
 
 const request = (options) => {
 	// Special handling for SSE/Chunked requests is removed as per user request to revert to standard request
@@ -26,11 +26,11 @@ const request = (options) => {
 			header,
 			success: (res) => {
 				if (res.statusCode === 200) {
-					if (res.data.code === 200 || typeof res.data === 'string') {
+					if (res.data.code === 200 || res.data.code === 0 || typeof res.data === 'string') {
 						resolve(res.data);
 					} else {
 						uni.showToast({
-							title: res.data.msg || "请求失败",
+							title: res.data.message || res.data.msg || "请求失败",
 							icon: "none",
 						});
 						reject(res.data);

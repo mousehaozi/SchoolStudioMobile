@@ -6,7 +6,7 @@
     <view class="header-section">
        <view class="title-wrapper">
          <view class="deco-dot"></view>
-         <text class="page-title">工作室介绍</text>
+         <text class="page-title">{{ profile.title || '工作室介绍' }}</text>
          <view class="deco-dot"></view>
        </view>
        <text class="subtitle">Innovation & Transformation</text>
@@ -20,11 +20,11 @@
           <text class="card-title">简介</text>
         </view>
         <view class="intro-paragraph">
-          雷程亮成果转移转化创新工作室自2024年5月6日正式成立以来，始终以“推动科技成果向现实生产力转化”为核心使命，聚焦产业升级、创新驱动、企业一线的发展需求，充分发挥桥梁纽带作用，深耕技术赋能，助力区县企业提质增效；通过技术经纪（理）人才培育，不断构建可持续发展机制；深度链接高校院所、企业与职工群体，构建起“产学研用”一体化生态服务体系。
+          <rich-text :nodes="profile.contentHtml"></rich-text>
         </view>
         <!-- Image Combined -->
-        <view class="image-section">
-          <image src="/static/img/index/intrdouce.jpg" mode="widthFix" class="diagram-image"></image>
+        <view class="image-section" v-if="profile.coverUrl">
+          <image :src="formatImageUrl(profile.coverUrl)" mode="widthFix" class="diagram-image"></image>
         </view>
       </view>
 
@@ -95,9 +95,62 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
+import { getStudioProfile } from "@/api/intro.js";
+import { imgBaseUrl } from "@/utils/baseUrl.js";
+
+const profile = ref({
+  title: "",
+  contentHtml: "",
+  coverUrl: "",
+});
+
+const processRichText = (html) => {
+  if (!html) return "";
+  const base = imgBaseUrl();
+  // 1. 处理图片路径
+  let content = html.replace(/<img[^>]+src="([^">]+)"/g, (match, src) => {
+    if (src.startsWith("http") || src.startsWith("data:")) {
+      return match;
+    }
+    return match.replace(src, base + src);
+  });
+  // 2. 为图片添加宽度 100% 的样式，防止溢出
+  content = content.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
+  return content;
+};
+
+const fetchProfile = async () => {
+  try {
+    const res = await getStudioProfile();
+    if (res.code === 0 || res.code === 200) {
+      const data = res.data || {};
+      if (data.contentHtml) {
+        data.contentHtml = processRichText(data.contentHtml);
+      }
+      profile.value = data;
+    }
+  } catch (error) {
+    console.error("Failed to fetch studio profile:", error);
+  }
+};
+
+const formatImageUrl = (url) => {
+  console.log(imgBaseUrl(),"imgBaseUrl");
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return imgBaseUrl() + url;
+  
+};
+
+onLoad(() => {
+  fetchProfile();
+});
+
 const makeCall = (phoneNumber) => {
   uni.makePhoneCall({
-    phoneNumber: phoneNumber
+    phoneNumber: phoneNumber,
   });
 };
 </script>

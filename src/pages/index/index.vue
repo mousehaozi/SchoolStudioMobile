@@ -23,17 +23,10 @@
       <!-- Banner -->
       <view class="banner-wrapper">
         <swiper class="banner-swiper" circular indicator-dots autoplay>
-          <swiper-item>
+          <swiper-item v-for="(item, index) in bannerList" :key="index">
             <image
               class="banner-image"
-              src="/static/img/index/banner1.png"
-              mode="aspectFill"
-            ></image>
-          </swiper-item>
-          <swiper-item>
-            <image
-              class="banner-image"
-              src="/static/img/index/banner2.jpg"
+              :src="formatImageUrl(item.imageUrl)"
               mode="aspectFill"
             ></image>
           </swiper-item>
@@ -129,12 +122,10 @@
             class="news-item"
             v-for="(item, index) in newsList"
             :key="index"
-            @click="
-              navigateTo('/pages/dynamic/compontes/dynamicDetail/dynamicDetail')
-            "
+            @click="navigateToDetail(item)"
           >
             <image
-              :src="item.image"
+              :src="formatImageUrl(item.coverUrl)"
               class="news-image"
               mode="aspectFill"
             ></image>
@@ -144,7 +135,7 @@
                 <view class="news-tags">
                   <text
                     class="tag blue-tag"
-                    v-for="(tag, tIndex) in item.tags"
+                    v-for="(tag, tIndex) in getTags(item.tags)"
                     :key="tIndex"
                     >{{ tag }}</text
                   >
@@ -154,7 +145,7 @@
                     src="/static/img/index/calendar.svg"
                     class="calendar-icon"
                   ></image>
-                  <text class="news-date">{{ item.date }}</text>
+                  <text class="news-date">{{ formatDate(item.publishedAt) }}</text>
                 </view>
               </view>
             </view>
@@ -171,15 +162,15 @@
         </view>
         <view class="popup-grid">
           <view class="popup-item" @click="handlePublish('需求发布')">
-            <image src="/static/logo.png" class="popup-icon"></image>
+            <image src="/static/appLogo.png" class="popup-icon"></image>
             <text>需求发布</text>
           </view>
           <view class="popup-item" @click="handlePublish('成果发布')">
-            <image src="/static/logo.png" class="popup-icon"></image>
+            <image src="/static/appLogo.png" class="popup-icon"></image>
             <text>成果发布</text>
           </view>
           <view class="popup-item" @click="handlePublish('知产发布')">
-            <image src="/static/logo.png" class="popup-icon"></image>
+            <image src="/static/appLogo.png" class="popup-icon"></image>
             <text>知产发布</text>
           </view>
         </view>
@@ -192,13 +183,53 @@
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import uIcon from "uview-plus/components/u-icon/u-icon.vue";
+import { getStudioBanners, getStudioNews } from "@/api/index.js";
+import { baseUrl, imgBaseUrl } from "@/utils/baseUrl.js";
+import { formatDate } from "@/utils/formatDate.js";
 
 const showPopup = ref(false);
 const statusBarHeight = ref(20);
+const bannerList = ref([]);
+const newsList = ref([]);
+
+const fetchBanners = async () => {
+  try {
+    const res = await getStudioBanners();
+    if (res.code === 0 || res.code === 200) {
+      bannerList.value = res.data;
+    }
+  } catch (error) {
+    console.error("Failed to fetch banners:", error);
+  }
+};
+
+const fetchNews = async () => {
+  try {
+    const res = await getStudioNews({ page: "1", size: "4" });
+    if (res.code === 0 || res.code === 200) {
+      newsList.value = res.data.records;
+    }
+  } catch (error) {
+    console.error("Failed to fetch news:", error);
+  }
+};
+
+const getTags = (tagsStr) => {
+  if (!tagsStr) return [];
+  return tagsStr.split(",").slice(0, 2); // 取前两个
+};
+
+const formatImageUrl = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return imgBaseUrl() + url;
+};
 
 onLoad(() => {
   const sysInfo = uni.getSystemInfoSync();
   statusBarHeight.value = sysInfo.statusBarHeight || 20;
+  fetchBanners();
+  fetchNews();
 });
 
 const techList = ref([
@@ -221,32 +252,13 @@ const techList = ref([
   },
 ]);
 
-const newsList = ref([
-  {
-    title: "首届武陵山人才节成功举办 武陵山科创中心助力区域科技成果转化",
-    date: "2025-10-24",
-    tags: ["活动聚会", "交流学习"],
-    image: "/static/img/index/new1.png",
-  },
-  {
-    title: "成果智汇合川赋能科创企业",
-    date: "2025-10-22",
-    tags: ["活动聚会", "交流学习"],
-    image: "/static/img/index/new2.png",
-  },
-  {
-    title: "环大学创新生态圈技术经理人经验分享沙龙在渝成功举办",
-    date: "2025-10-17",
-    tags: ["活动聚会", "交流学习"],
-    image: "/static/img/index/new3.png",
-  },
-  {
-    title: "汇聚发展合力 九龙坡区政协专题调研技术经理人队伍建设",
-    date: "2025-10-17",
-    tags: ["活动聚会", "交流学习"],
-    image: "/static/img/index/new4.png",
-  },
-]);
+const navigateToDetail = (item) => {
+  uni.navigateTo({
+    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${encodeURIComponent(
+      JSON.stringify(item)
+    )}`,
+  });
+};
 
 const togglePopup = () => {
   showPopup.value = !showPopup.value;

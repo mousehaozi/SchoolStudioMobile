@@ -6,24 +6,24 @@
     <view class="content-card">
       <!-- Title Section -->
       <view class="header-section">
-        <text class="main-title">首届武陵山人才节成功举办 武陵山科创中心助力区域科技成果转化</text>
+        <text class="main-title">{{ detailData.title || '加载中...' }}</text>
         
         <view class="meta-info">
           <view class="meta-item">
             <text class="meta-label">发布：</text>
-            <text class="meta-value">工作室管理组</text>
+            <text class="meta-value">{{ detailData.publisher || '无' }}</text>
           </view>
           <view class="meta-divider"></view>
           <view class="meta-item">
             <u-icon name="clock" size="14" color="#9CA3AF"></u-icon>
-            <text class="meta-value">2025-10-24 14:30</text>
+            <text class="meta-value">{{ formatDate(detailData.publishedAt) || '---' }}</text>
           </view>
         </view>
-
         <!-- Tags Section -->
         <view class="tags-section">
-          <view class="tag blue-tag">活动聚会</view>
-          <view class="tag blue-tag">交流学习</view>
+          <view class="tag blue-tag" v-for="(tag, index) in getTags(detailData.tags)" :key="index">
+            {{ tag }}
+          </view>
         </view>
       </view>
 
@@ -31,31 +31,7 @@
 
       <!-- Content Section -->
       <view class="article-body">
-        <view class="paragraph lead">
-          2025年10月24日至26日，重庆国际人才交流大会专场活动——武陵山人才节在重庆市黔江区隆重开幕。本届人才节由重庆国际人才交流大会组委会办公室指导，汇聚了来自渝鄂湘黔四省市的院士、专家、企业代表和人才工作者。
-        </view>
-
-        <view class="paragraph">
-          重庆市科学技术研究院党委书记雷虹率领院综合办、资配中心、技转中心主要负责人，及武陵山科创中心筹备组、博士服务团出席活动。活动期间，黔江区人民政府党组成员、副区长滕旭荣与重庆市科学技术研究院党委委员、副院长岑军波代表双方签署“共建武陵山科创中心合作协议”并为武陵山科创中心揭牌，标志着该中心正式投入运营。
-        </view>
-
-        <!-- Image Insert -->
-        <view class="image-wrapper">
-             <image src="/static/img/index/new1.png" mode="widthFix" class="article-image"></image>
-             <text class="image-caption">武陵山科创中心揭牌仪式现场</text>
-        </view>
-
-        <view class="paragraph">
-           重科院新材料、生物医药、绿色低碳等领域的12名博士服务团成员首批入驻，将围绕地方产业技术需求开展产学研融通创新。武陵山科创中心与重庆三磊玻纤股份有限公司、重庆新晨星蚕丝绸科技有限公司、西南大学、北京工业大学重庆研究院签订了产学研合作协议。
-        </view>
-
-        <view class="quote-block">
-          “重科院将以共建武陵山科创中心为契机，持续深化与黔江区及武陵山片区各市州的科技合作，助力构建‘人才引领、科技赋能、产业振兴’的区域高质量发展新格局。”
-        </view>
-
-        <view class="paragraph">
-           会上，武陵山区新材料、食品及农产品加工领域龙头企业、高校院所共40余家单位发起成立武陵山新材料产业技术创新战略联盟，旨在共同推动关键共性技术联合攻关、标准制定、成果转化和产业化应用。大会还同步发布了武陵山区首批重点技术需求400余项、优秀科技成果1000余项。
-        </view>
+        <rich-text :nodes="processRichText(detailData.contentHtml)"></rich-text>
       </view>
 
       <!-- Footer Info -->
@@ -85,7 +61,44 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { onLoad } from '@dcloudio/uni-app';
 import uIcon from 'uview-plus/components/u-icon/u-icon.vue';
+import { imgBaseUrl } from "@/utils/baseUrl.js";
+import { formatDate } from "@/utils/formatDate.js";
+
+const detailData = ref({});
+
+const formatImageUrl = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return imgBaseUrl() + url;
+};
+
+const getTags = (tagsStr) => {
+  if (!tagsStr) return [];
+  return tagsStr.split(",");
+};
+
+const processRichText = (html) => {
+  if (!html) return "";
+  const base = imgBaseUrl();
+  let content = html.replace(/<img[^>]+src="([^">]+)"/g, (match, src) => {
+    if (src.startsWith("http") || src.startsWith("data:")) {
+      return match;
+    }
+    return match.replace(src, base + src);
+  });
+  content = content.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
+  return content;
+};
+
+onLoad((options) => {
+  if (options.data) {
+      detailData.value = JSON.parse(options.data);
+      console.log(detailData.value,'detailData');      
+  }
+});
 </script>
 
 <style lang="scss" scoped>
