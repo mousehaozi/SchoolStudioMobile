@@ -12,68 +12,105 @@
     </view>
 
     <!-- News List -->
-    <view class="news-list">
-      <view class="news-item" v-for="(item, index) in dynamics" :key="index" @click="navigateTo('/pages/dynamic/compontes/dynamicDetail/dynamicDetail')">
-        <image :src="item.image" class="news-image" mode="aspectFill"></image>
+    <view class="news-list" v-if="dynamics.length > 0">
+      <view class="news-item" v-for="(item, index) in dynamics" :key="index" @click="goToDetail(item)">
+        <view class="news-image-wrap">
+          <image :src="formatImageUrl(item.coverUrl)" class="news-image" mode="aspectFill"></image>
+        </view>
         <view class="news-content">
-          <text class="news-title">{{ item.title }}</text>
+          <view class="title-wrap">
+            <text class="news-title">{{ item.title }}</text>
+          </view>
+          
+          <view class="news-location" v-if="item.location">
+            <u-icon name="map-fill" color="#3B82F6" size="14"></u-icon>
+            <text class="location-text">{{ item.location }}</text>
+          </view>
+
           <view class="news-meta">
             <view class="news-tags">
-              <text class="tag blue-tag" v-for="(tag, tIndex) in item.tags" :key="tIndex">{{ tag }}</text>
-            </view>
-            <view class="news-date-container">
-              <image src="/static/img/index/calendar.svg" class="calendar-icon"></image>
-              <text class="news-date">{{ item.date }}</text>
+              <text class="tag blue-tag" v-for="(tag, tIndex) in getTags(item.tags)" :key="tIndex">{{ tag }}</text>
             </view>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- No More Data -->
+    <!-- Loading / No More Data -->
     <view class="no-more">
-      <text class="no-more-text">没有更多了</text>
-      <view class="no-more-line"></view>
+      <text class="no-more-text">{{ noMore ? '没有更多了' : '正在加载中...' }}</text>
+      <view class="no-more-line" v-if="noMore"></view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { onShow, onReachBottom } from '@dcloudio/uni-app';
+import { getStudioNews } from "@/api/index.js";
+import { formatImageUrl } from "@/utils/formatImageUrl.js";
+import { formatDate } from "@/utils/formatDate.js";
 
 const keyword = ref('');
+const dynamics = ref([]);
+const page = ref(1);
+const size = ref(10);
+const noMore = ref(false);
+const isLoading = ref(false);
 
-// Dynamic data matching the images provided
-const dynamics = ref([
-  {
-    title: '首届武陵山人才节成功举办 武陵山科创中心助力区域科技成果转化',
-    date: '2025-10-24',
-    tags: ['活动聚会', '交流学习'],
-    image: '/static/img/index/new1.png'
-  },
-  {
-    title: '成果智汇合川赋能科创企业',
-    date: '2025-10-22',
-    tags: ['活动聚会', '交流学习'],
-    image: '/static/img/index/new2.png'
-  },
-  {
-    title: '汇聚发展合力 九龙坡区政协专题调研技术经理人队伍建设',
-    date: '2025-08-29',
-    tags: ['活动聚会', '交流学习'],
-    image: '/static/img/index/new3.png'
-  },
-  {
-    title: '2025年重庆市卫生健康领域高级技术经理人培训班成功举办',
-    date: '2025-06-12',
-    tags: ['活动聚会', '交流学习'],
-    image: '/static/img/index/new4.png'
+onShow(() => {
+  refreshData();
+});
+
+onReachBottom(() => {
+  if (!noMore.value && !isLoading.value) {
+    page.value++;
+    fetchNews();
   }
-]);
+});
 
-const navigateTo = (url) => {
+watch(keyword, () => {
+  refreshData();
+});
+
+const refreshData = () => {
+  page.value = 1;
+  noMore.value = false;
+  dynamics.value = [];
+  fetchNews();
+};
+
+const fetchNews = async () => {
+  if (isLoading.value) return;
+  isLoading.value = true;
+  try {
+    const res = await getStudioNews({
+      page: page.value,
+      size: size.value,
+      keyword: keyword.value
+    });
+    if (res.code === 200 || res.code === 0) {
+      const records = res.data.records || [];
+      if (records.length < size.value) {
+        noMore.value = true;
+      }
+      dynamics.value = [...dynamics.value, ...records];
+    }
+  } catch (err) {
+    console.error("Fetch news failed:", err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const getTags = (tagsStr) => {
+  if (!tagsStr) return [];
+  return tagsStr.split(/[,，]/).map(t => t.trim()).filter(t => t !== '');
+};
+
+const goToDetail = (item) => {
   uni.navigateTo({
-    url: url
+    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?id=${item.id}`
   });
 };
 </script>
@@ -148,77 +185,124 @@ const navigateTo = (url) => {
 /* News List Styles */
 .news-item {
   display: flex;
-  flex-direction: column;
   margin-bottom: 30rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   overflow: hidden;
   background-color: #fff;
-  border: 1rpx solid #eee;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
   animation: fadeIn 0.6s ease-out;
+  padding: 20rpx;
 }
 
 .news-item:last-child {
   margin-bottom: 0;
 }
 
-.news-image {
-  width: 100%;
-  height: 300rpx;
-  background-color: #eee;
+.news-image-wrap {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  flex-shrink: 0;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background-color: #f3f4f6;
+
+  .news-image {
+    width: 100%;
+    height: 100%;
+  }
+
+  .date-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: #fff;
+    padding: 6rpx 10rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom-right-radius: 12rpx;
+    box-shadow: 2rpx 2rpx 8rpx rgba(0, 0, 0, 0.2);
+
+    .day {
+      font-size: 24rpx;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .month {
+      font-size: 16rpx;
+      transform: scale(0.8);
+      margin-top: 2rpx;
+    }
+  }
 }
 
 .news-content {
-  padding: 20rpx;
+  flex: 1;
+  padding-left: 24rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .news-title {
   font-family: 'DingTalk JinBuTi', sans-serif;
-  font-size: 32rpx;
-  display: block;
+  font-size: 30rpx;
   font-weight: bold;
-  margin-bottom: 15rpx;
-  color: #000;
+  color: #1F2937;
   line-height: 1.4;
+  margin-bottom: 12rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.news-location {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+  
+  .location-text {
+    font-size: 24rpx;
+    color: #6B7280;
+    margin-left: 8rpx;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320rpx;
+  }
 }
 
 .news-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 }
 
 .news-tags {
   display: flex;
-  gap: 12rpx;
+  flex-wrap: wrap;
+  gap: 8rpx;
 }
 
 .tag {
-  font-size: 24rpx;
-  padding: 6rpx 24rpx;
-  border-radius: 30rpx;
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
   display: inline-block;
+  background-color: #F3F4F6;
+  color: #4B5563;
+  transition: all 0.3s;
 }
 
 .blue-tag {
-  background-color: rgba(0, 122, 255, 0.08);
-  color: #007aff;
-  border: 1rpx solid #007aff;
-}
-
-.news-date-container {
-  display: flex;
-  align-items: center;
-}
-
-.calendar-icon {
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-}
-
-.news-date {
-  color: #999;
-  font-size: 26rpx;
+  background-color: #EFF6FF;
+  color: #3B82F6;
+  border: 1rpx solid rgba(59, 130, 246, 0.1);
 }
 
 /* No More Data Footer */

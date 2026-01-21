@@ -59,11 +59,11 @@
             <view class="icon-wrapper">
               <image src="/static/img/index/need.webp" class="nav-icon"></image>
             </view>
-            <text>助需平台</text>
+            <text>产教融合</text>
           </view>
           <view
             class="nav-item"
-            @click="navigateTo('/pages/question/question')"
+            @click="navigateTo('/pages/serviceConversa/serviceConversa')"
           >
             <view class="icon-wrapper">
               <image
@@ -77,7 +77,7 @@
       </view>
 
       <!-- Tech Transfer Section -->
-      <view class="card section-card">
+      <!-- <view class="card section-card">
         <view class="section-header">
           <text class="section-title">成果转化</text>
           <text class="more-link">更多</text>
@@ -107,15 +107,15 @@
             <u-icon name="arrow-right" color="#D1D5DB" size="16"></u-icon>
           </view>
         </view>
-      </view>
+      </view> -->
 
       <!-- Work Dynamics Section -->
       <view class="card section-card">
         <view class="section-header">
           <text class="section-title">工作动态</text>
-          <text class="more-link" @click="navigateTo('/pages/dynamic/dynamic')"
+          <!-- <text class="more-link" @click="navigateTo('/pages/dynamic/dynamic')"
             >更多</text
-          >
+          > -->
         </view>
         <view class="news-list">
           <view
@@ -158,20 +158,17 @@
     <view class="popup-overlay" v-if="showPopup" @click="togglePopup">
       <view class="popup-content" @click.stop>
         <view class="popup-btn full-width">
-          <text>“渝教工心”助需平台（点击此处发布）</text>
+          <text>“渝教工心”产教融合</text>
         </view>
         <view class="popup-grid">
-          <view class="popup-item" @click="handlePublish('需求发布')">
-            <image src="/static/appLogo.png" class="popup-icon"></image>
-            <text>需求发布</text>
-          </view>
-          <view class="popup-item" @click="handlePublish('成果发布')">
-            <image src="/static/appLogo.png" class="popup-icon"></image>
-            <text>成果发布</text>
-          </view>
-          <view class="popup-item" @click="handlePublish('知产发布')">
-            <image src="/static/appLogo.png" class="popup-icon"></image>
-            <text>知产发布</text>
+          <view
+            class="popup-item"
+            v-for="(item, index) in topicList"
+            :key="index"
+            @click="handlePublish(item)"
+          >
+            <image :src="formatImageUrl(item.coverUrl || '')" class="popup-icon"></image>
+            <text>{{ item.name || item }}</text>
           </view>
         </view>
       </view>
@@ -183,14 +180,15 @@
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import uIcon from "uview-plus/components/u-icon/u-icon.vue";
-import { getStudioBanners, getStudioNews } from "@/api/index.js";
-import { baseUrl, imgBaseUrl } from "@/utils/baseUrl.js";
+import { getStudioBanners, getStudioNews, getIeTopic } from "@/api/index.js";
+import { formatImageUrl } from "@/utils/formatImageUrl.js";
 import { formatDate } from "@/utils/formatDate.js";
 
 const showPopup = ref(false);
 const statusBarHeight = ref(20);
 const bannerList = ref([]);
 const newsList = ref([]);
+const topicList = ref([]);
 
 const fetchBanners = async () => {
   try {
@@ -214,22 +212,29 @@ const fetchNews = async () => {
   }
 };
 
+const fetchTopicList = async () => {
+  try {
+    const res = await getIeTopic();
+    if (res.code === 0 || res.code === 200) {
+      topicList.value = res.data.length > 0 ? res.data : ["需求发布", "成果发布", "知产发布"];
+    }
+  } catch (error) {
+    console.error("Failed to fetch topics:", error);
+  }
+};
+
 const getTags = (tagsStr) => {
   if (!tagsStr) return [];
   return tagsStr.split(",").slice(0, 2); // 取前两个
 };
 
-const formatImageUrl = (url) => {
-  if (!url) return "";
-  if (url.startsWith("http")) return url;
-  return imgBaseUrl() + url;
-};
 
 onLoad(() => {
   const sysInfo = uni.getSystemInfoSync();
   statusBarHeight.value = sysInfo.statusBarHeight || 20;
   fetchBanners();
   fetchNews();
+  fetchTopicList();
 });
 
 const techList = ref([
@@ -264,10 +269,12 @@ const togglePopup = () => {
   showPopup.value = !showPopup.value;
 };
 
-const handlePublish = (type) => {
-  uni.showToast({
-    title: "还没有开放",
-    icon: "none",
+const handlePublish = (item) => {
+  showPopup.value = false;
+  const idValue = typeof item === 'object' ? item.id : item;
+  const nameValue = typeof item === 'object' ? item.name : item;
+  uni.navigateTo({
+    url: `/pages/integraEdu/integraEdu?id=${idValue}&name=${nameValue}`,
   });
 };
 
@@ -381,7 +388,7 @@ const getTagClass = (tag) => {
 
 /* Cards Common Style */
 .card {
-  background-color: #fff;
+  background-color:rgba(255,255,255,0.8);
   border-radius: 20rpx;
   padding: 20rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
@@ -631,8 +638,7 @@ const getTagClass = (tag) => {
   z-index: 1000;
   display: flex;
   justify-content: center;
-  padding-top: 450rpx;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .popup-content {
@@ -671,13 +677,18 @@ const getTagClass = (tag) => {
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  text{
+    color: #333;
+    font-size: 28rpx;
+  }
 }
 
 .popup-icon {
-  width: 80rpx;
-  height: 80rpx;
+  width: 90rpx;
+  height: 90rpx;
   margin-bottom: 10rpx;
-  border-radius: 10rpx;
+  border-radius: 50%;
 }
 
 /* Tags */

@@ -22,10 +22,6 @@
         <view class="intro-paragraph">
           <rich-text :nodes="profile.contentHtml"></rich-text>
         </view>
-        <!-- Image Combined -->
-        <view class="image-section" v-if="profile.coverUrl">
-          <image :src="formatImageUrl(profile.coverUrl)" mode="widthFix" class="diagram-image"></image>
-        </view>
       </view>
 
       <!-- Info Sections -->
@@ -35,8 +31,8 @@
             <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
             <text class="info-label">工作室领衔人</text>
           </view>
-          <text class="info-content highlight">雷程亮</text>
-          <text class="info-desc">重庆市技术转移研究院有限公司董事长兼总经理</text>
+          <text class="info-content highlight">{{ profile.leaderName || '雷程亮' }}</text>
+          <text class="info-desc">{{ profile.leaderIntro || '重庆市技术转移研究院有限公司董事长兼总经理' }}</text>
         </view>
         
         <view class="divider"></view>
@@ -47,41 +43,39 @@
             <text class="info-label">组织架构</text>
           </view>
           <view class="tag-group">
-            <view class="tag">概念验证服务工作小组</view>
-            <view class="tag">转移转化服务工作小组</view>
+            <view class="tag" v-for="(item, index) in profile.orgStructureParsed" :key="index">
+              {{ item }}
+            </view>
+            <view class="tag" v-if="!profile.orgStructureParsed || profile.orgStructureParsed.length === 0">
+              概念验证服务小组
+            </view>
           </view>
         </view>
 
         <view class="divider"></view>
 
-        <view class="info-item">
-           <view class="label-row">
-            <u-icon name="checkmark-circle-fill" color="#3B82F6" size="18"></u-icon>
-            <text class="info-label">核心职能</text>
-           </view>
-           <text class="info-content">成果汇交、需求对接、成果转化。</text>
-        </view>
+         <view class="info-item">
+            <view class="label-row">
+             <u-icon name="checkmark-circle-fill" color="#3B82F6" size="18"></u-icon>
+             <text class="info-label">核心职能</text>
+            </view>
+            <text class="info-content">{{ profile.coreFunctions || '成果汇交、需求对接、成果转化。' }}</text>
+         </view>
       </view>
 
        <!-- Contact Grid -->
       <view class="contact-section">
         <text class="section-header">联系我们</text>
         <view class="contact-grid">
-           <!-- Contact 1 -->
-           <view class="contact-box" @click="makeCall('17783262398')">
+           <view 
+             class="contact-box" 
+             v-for="(item, index) in profile.contactUsParsed" 
+             :key="index"
+             @click="makeCall(item.phone)"
+           >
               <view class="contact-info">
-                 <text class="contact-name">杨老师</text>
-                 <text class="contact-role">工作室联系人</text>
-              </view>
-              <view class="call-btn">
-                 <u-icon name="phone-fill" color="#fff" size="14"></u-icon>
-              </view>
-           </view>
-           <!-- Contact 2 -->
-           <view class="contact-box" @click="makeCall('17399996666')">
-              <view class="contact-info">
-                 <text class="contact-name">侯建国</text>
-                 <text class="contact-role">业务联系人</text>
+                 <text class="contact-name">{{ item.name }}</text>
+                 <text class="contact-role">{{ item.distraction || '业务联系人' }}</text>
               </view>
               <view class="call-btn">
                  <u-icon name="phone-fill" color="#fff" size="14"></u-icon>
@@ -104,6 +98,11 @@ const profile = ref({
   title: "",
   contentHtml: "",
   coverUrl: "",
+  leaderName: "",
+  leaderIntro: "",
+  orgStructureParsed: [],
+  coreFunctions: "",
+  contactUsParsed: [],
 });
 
 const processRichText = (html) => {
@@ -129,6 +128,19 @@ const fetchProfile = async () => {
       if (data.contentHtml) {
         data.contentHtml = processRichText(data.contentHtml);
       }
+      
+      // Parse JSON strings
+      try {
+        if (data.orgStructure) {
+          data.orgStructureParsed = JSON.parse(data.orgStructure);
+        }
+        if (data.contactUs) {
+          data.contactUsParsed = JSON.parse(data.contactUs);
+        }
+      } catch (e) {
+        console.error("Parse JSON failed:", e);
+      }
+
       profile.value = data;
     }
   } catch (error) {

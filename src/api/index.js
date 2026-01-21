@@ -33,3 +33,23 @@ export const wechatLogin = (code) => {
         },
     });
 };
+
+/**
+ * 获取个人信息
+ */
+export const getUserProfile = () => {
+    return request({
+        url: "/user/profile",
+        method: "GET",
+    });
+};
+
+/**
+ * 获取主题列表
+ */
+export const getIeTopic = () => {
+    return request({
+        url: "/ie-topic",
+        method: "GET",
+    });
+};

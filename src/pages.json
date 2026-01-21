@@ -7,15 +7,15 @@
 	},
 	"pages": [
 		{
-			"path": "pages/login/login",
+			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "登录",
 				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/index/index",
+			"path": "pages/login/login",
 			"style": {
+				"navigationBarTitleText": "登录",
 				"navigationStyle": "custom"
 			}
 		},
@@ -50,6 +50,25 @@
 			"path": "pages/dynamic/compontes/dynamicDetail/dynamicDetail",
 			"style": {
 				"navigationBarTitleText": "工作动态详情"
+			}
+		},
+		{
+			"path": "pages/integraEdu/integraEdu",
+			"style": {
+				"navigationBarTitleText": "产教融合"
+			}
+		},
+		{
+			"path": "pages/integraEdu/compontes/integraEduDetail/integraEduDetail",
+			"style": {
+				"navigationBarTitleText": "详情"
+			}
+		},
+		{
+			"path": "pages/serviceConversa/serviceConversa",
+			"style": {
+				"navigationBarTitleText": "问题咨询",
+				"navigationBarBackgroundColor": "#fff"
 			}
 		}
 	],
