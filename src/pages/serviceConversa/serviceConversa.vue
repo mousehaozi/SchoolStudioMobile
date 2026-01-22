@@ -3,8 +3,8 @@
     <!-- Top Status Bar -->
     <view class="status-bar">
       <!-- History Button -->
-      <view class="history-btn" @click="toggleHistory">
-        <u-icon name="list-dot" color="#3b82f6" size="24"></u-icon>
+      <view class="history-btn" @click="toggleHistory" hover-class="btn-hover">
+        <u-icon name="clock" color="#3b82f6" size="20"></u-icon>
         <text>历史</text>
       </view>
 
@@ -40,12 +40,16 @@
         </view>
 
         <!-- Message List -->
-        <view 
-          v-for="(msg, index) in messages" 
-          :key="index"
-          class="message-row"
-          :class="msg.role === 'user' ? 'user-row' : 'bot-row'"
-        >
+        <view v-for="(msg, index) in messages" :key="index">
+          <!-- Time Stamp -->
+          <view class="time-stamp" v-if="shouldShowTime(msg, index)">
+            <text>{{ formatChatTime(msg.sentAt) }}</text>
+          </view>
+
+          <view 
+            class="message-row"
+            :class="msg.role === 'user' ? 'user-row' : 'bot-row'"
+          >
           <view class="avatar">
             <image :src="msg.role === 'user' ? userAvatar : botAvatar" mode="aspectFill"></image>
           </view>
@@ -59,18 +63,14 @@
               <image :src="formatUrl(msg.content)" mode="widthFix" class="chat-img"></image>
             </view>
             <!-- Read Status -->
-            <view v-if="msg.role === 'user' && index === lastUserMsgIndex" class="read-status" :class="{ 'is-read': msg.readStatus === 1 }">
-              {{ msg.readStatus === 1 ? '已读' : '未读' }}
+            <view v-if="msg.role === 'user' && index === lastUserMsgIndex" class="read-status" :class="{ 'is-read': msg.readStatus }">
+              {{ msg.readStatus ? '已读' : '未读' }}
             </view>
+          </view>
           </view>
         </view>
       </view>
     </scroll-view>
-
-    <!-- Unavailable Placeholder (Optional, shown in image) -->
-    <view class="unavailable-toast" v-if="isUnavailable">
-      <text>服务暂时不可用</text>
-    </view>
 
     <!-- History Sessions Popup -->
     <view class="history-overlay" v-if="showHistory" @click="toggleHistory">
@@ -224,28 +224,80 @@ const initChat = async () => {
 const initSocket = () => {
   const token = uni.getStorageSync('token');
   const url = token ? `${wsBaseUrl()}?token=${token}` : wsBaseUrl();
+  console.log("Connecting WebSocket to:", url);
   socket.connect(url);
   
   socket.onStatusChange((s) => {
+    console.log("Socket Status Changed:", s);
     status.value = s;
   });
 
-  socket.onMessage((data) => {
-    // Only add if it's for current session or a general notification
-    if (data.sessionId && data.sessionId !== currentSessionId.value) return;
+  socket.onMessage((rawData) => {
+    console.log("WebSocket Raw Message:", rawData);
+    const data = rawData.data ? (typeof rawData.data === 'string' ? JSON.parse(rawData.data) : rawData.data) : rawData;
     
-    // Map incoming message to our format
-    if (data.content) {
-      // Use senderRole: USER is本人, ADMIN is对方
-      const isBot = data.senderRole === 'ADMIN';
+    // 1. Handle Read Status Update
+    if (data.type === 'MARK_READ' || data.type === 'READ_STATUS' || data.type === 'CHAT_READ') {
+      const payload = data.payload || data.body || data;
+      console.log("Read Status Update event received:", data.type, "Payload Session:", payload.sessionId, "Current Session:", currentSessionId.value);
+      
+      if (!payload.sessionId || payload.sessionId == currentSessionId.value) {
+        console.log("Marking all user messages as read");
+        messages.value.forEach((m, i) => {
+          if (m.role === 'user' && m.readStatus !== 1) {
+            m.readStatus = 1;
+          }
+        });
+      }
+      return;
+    }
+
+    // 2. Identify message type
+    if (data.type !== 'CHAT_MESSAGE' && !data.content) {
+      console.log("Ignoring message type:", data.type);
+      return;
+    }
+
+    const msgData = data.payload || data.body || data;
+    console.log("Extracted Message Data:", msgData);
+
+    // 3. Session Filter
+    if (msgData.sessionId && msgData.sessionId != currentSessionId.value) {
+      console.log("Message ignored: wrong sessionId", msgData.sessionId, "current:", currentSessionId.value);
+      return;
+    }
+    
+    if (msgData.content) {
+      const isBot = msgData.senderRole === 'ADMIN';
+      
+      // 4. If Admin sends a message, it implies they have read previous user messages
+      if (isBot) {
+        messages.value.forEach(m => {
+          if (m.role === 'user') m.readStatus = 1;
+        });
+      }
+
+      // 5. Avoid duplicate user messages
+      if (!isBot) {
+        const lastMsg = messages.value[messages.value.length - 1];
+        if (lastMsg && lastMsg.role === 'user' && lastMsg.content === msgData.content) {
+          console.log("Duplicate user message from WS, updating status and ignoring");
+          if (msgData.readStatus !== undefined) lastMsg.readStatus = msgData.readStatus;
+          return;
+        }
+      }
+
+      console.log("Rendering new message:", msgData.content);
       messages.value.push({
         role: isBot ? 'bot' : 'user',
-        content: data.content,
-        msgType: data.msgType || 'TEXT',
-        readStatus: data.readStatus || 0
+        content: msgData.content,
+        msgType: msgData.msgType || 'TEXT',
+        readStatus: msgData.readStatus || 0,
+        sentAt: msgData.sentAt || new Date().toISOString()
       });
+      
       scrollToBottom();
-      // Auto mark read if we are in this session
+      
       if (isBot) {
         markSessionRead(currentSessionId.value);
       }
@@ -255,7 +307,10 @@ const initSocket = () => {
 
 const fetchMessages = async (sid) => {
   try {
-    const res = await getSessionMessages(sid, { page: 1, size: 50 });
+    // According to OpenAPI spec: use 'limit' for pagination
+    // Optional cursors: cursorSentAt, cursorId (used for loading older messages)
+    const res = await getSessionMessages(sid, { limit: 50 });
+    
     if (res.code === 200 || res.code === 0) {
       const records = res.data.records || [];
       messages.value = records.map(m => ({
@@ -263,8 +318,9 @@ const fetchMessages = async (sid) => {
         role: m.senderRole === 'ADMIN' ? 'bot' : 'user',
         content: m.content,
         msgType: m.msgType,
-        readStatus: m.readStatus
-      })).reverse(); // Often needs reverse if backend gives desc order
+        readStatus: m.readStatus,
+        sentAt: m.sentAt
+      })).reverse();
       scrollToBottom();
     }
   } catch (err) {
@@ -287,12 +343,7 @@ const sendMessage = async () => {
     });
     
     if (res.code === 200 || res.code === 0) {
-       messages.value.push({ 
-         role: 'user', 
-         content, 
-         msgType: 'TEXT',
-         readStatus: res.data ? res.data.readStatus : 0
-       });
+       // Message will be rendered via WebSocket onMessage
        scrollToBottom();
     }
   } catch (err) {
@@ -316,12 +367,7 @@ const chooseImage = () => {
             msgType: 'IMAGE',
             content: imageUrl
           });
-          messages.value.push({ 
-            role: 'user', 
-            content: imageUrl, 
-            msgType: 'IMAGE',
-            readStatus: 0 // Default to unread for new upload
-          });
+          // Message will be rendered via WebSocket onMessage
           scrollToBottom();
         }
       } catch (err) {
@@ -407,6 +453,41 @@ const previewImage = (url) => {
     urls: [formatUrl(url)]
   });
 };
+const shouldShowTime = (msg, index) => {
+  if (index === 0) return true;
+  const prevMsg = messages.value[index - 1];
+  if (!prevMsg || !prevMsg.sentAt || !msg.sentAt) return true;
+  
+  const currTime = new Date(msg.sentAt).getTime();
+  const prevTime = new Date(prevMsg.sentAt).getTime();
+  // Show time if interval is > 10 minutes
+  return currTime - prevTime > 10 * 60 * 1000;
+};
+
+const formatChatTime = (sentAt) => {
+  if (!sentAt) return "";
+  const date = new Date(sentAt);
+  const now = new Date();
+  
+  // Reset time to compare days
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const yesterday = today - 24 * 60 * 60 * 1000;
+  const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const timeStr = `${hours}:${minutes}`;
+
+  if (targetDate === today) {
+    return timeStr;
+  } else if (targetDate === yesterday) {
+    return `昨天 ${timeStr}`;
+  } else {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${month}月${day}日 ${timeStr}`;
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -424,33 +505,38 @@ const previewImage = (url) => {
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  padding: 20rpx 40rpx;
+  padding: 24rpx 30rpx;
   background-color: #fff;
-  border-bottom: 2rpx solid #f0f0f0;
+  border-bottom: 2rpx solid #f2f2f2;
   z-index: 100;
   box-sizing: border-box;
+  height: 110rpx;
 
   .history-btn {
-    position: absolute;
-    left: 40rpx;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    z-index: 2;
+    justify-content: center;
+    padding: 12rpx 24rpx;
+    background-color: #eff6ff;
+    border-radius: 30rpx;
+    transition: all 0.2s;
     
     text {
-      font-size: 20rpx;
+      font-size: 24rpx;
       color: #3b82f6;
-      margin-top: 4rpx;
+      margin-left: 8rpx;
+      font-weight: 500;
+    }
+
+    &.btn-hover {
+      background-color: #dbeafe;
+      transform: scale(0.96);
     }
   }
 
   .conn-status {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
     
@@ -458,7 +544,7 @@ const previewImage = (url) => {
       width: 12rpx;
       height: 12rpx;
       border-radius: 50%;
-      margin-right: 12rpx;
+      margin-right: 8rpx;
       background-color: #ccc;
       
       &.connected { background-color: #52c41a; }
@@ -470,23 +556,22 @@ const previewImage = (url) => {
     }
     
     .status-text {
-      font-size: 26rpx;
+      font-size: 24rpx;
       color: #999;
     }
   }
 
   .end-btn {
     margin: 0;
-    padding: 0 24rpx;
-    height: 60rpx;
-    line-height: 56rpx;
-    font-size: 24rpx;
+    padding: 0 20rpx;
+    min-width: 120rpx;
+    height: 56rpx;
+    line-height: 52rpx;
+    font-size: 22rpx;
     color: #ff4d4f;
     background-color: transparent;
     border: 2rpx solid #ff4d4f;
-    border-radius: 30rpx;
-    position: relative;
-    z-index: 2;
+    border-radius: 28rpx;
     
     &::after { border: none; }
 
@@ -563,6 +648,17 @@ const previewImage = (url) => {
   text {
     color: #fff;
     font-size: 30rpx;
+  }
+}
+
+/* Time Stamp */
+.time-stamp {
+  display: flex;
+  justify-content: center;
+  
+  text {
+    color: #9ca3af;
+    font-size: 22rpx;
   }
 }
 

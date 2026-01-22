@@ -25,6 +25,23 @@ const request = (options) => {
 			data: options.data || {},
 			header,
 			success: (res) => {
+				const dataCode = res.data ? res.data.code : null;
+				// Handle 401 or 403 (Unauthorized/Forbidden)
+				if (res.statusCode === 401 || res.statusCode === 403 || dataCode === 401 || dataCode === 403) {
+					uni.removeStorageSync("token");
+					uni.showToast({
+						title: "请先登录",
+						icon: "none",
+					});
+					setTimeout(() => {
+						uni.reLaunch({
+							url: "/pages/login/login",
+						});
+					}, 800);
+					reject(res.data);
+					return;
+				}
+
 				if (res.statusCode === 200) {
 					if (res.data.code === 200 || res.data.code === 0 || typeof res.data === 'string') {
 						resolve(res.data);
@@ -35,15 +52,6 @@ const request = (options) => {
 						});
 						reject(res.data);
 					}
-				} else if (res.statusCode === 401 || res.statusCode === 403) {
-					uni.showToast({
-						title: "请先登录",
-						icon: "none",
-					});
-					uni.navigateTo({
-						url: "/pages/login/index",
-					});
-					reject(res);
 				} else {
 					uni.showToast({
 						title: `网络错误 ${res.statusCode}`,

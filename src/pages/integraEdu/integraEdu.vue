@@ -25,32 +25,36 @@
         class="article-card"
         @click="goToDetail(item)"
       >
-        <view class="article-title-row">
-          <view class="icon-wrap">
-             <u-icon name="checkmark-circle" color="#3b82f6" size="22"></u-icon>
-          </view>
-          <text class="article-title">{{ item.title }}</text>
-        </view>
+        <text class="article-title">{{ item.title }}</text>
         
-        <view class="article-info-row">
-          <text class="article-org">{{ item.publisher || '重庆工业职业技术大学' }}</text>
-          <view class="article-views">
-            <u-icon name="eye" size="14" color="#999"></u-icon>
-            <text class="view-count">{{ item.viewCount || 0 }}次浏览</text>
+        <view class="article-body">
+          <image v-if="item.coverUrl" :src="formatImageUrl(item.coverUrl)" mode="aspectFill" class="article-cover"></image>
+          <view class="article-content">
+            <view class="article-desc">
+              <rich-text :nodes="processRichText(item.contentHtml)"></rich-text>
+            </view>
           </view>
         </view>
         
-        <view class="article-tags">
-          <text 
-            v-for="(tag, tIndex) in getTags(item.tags)" 
-            :key="tIndex"
-            class="tag"
-          >{{ tag }}</text>
+        <view class="article-footer">
+          <view class="article-tags">
+            <text 
+              v-for="(tag, tIndex) in getTags(item.tags)" 
+              :key="tIndex"
+              class="tag"
+            >{{ tag }}</text>
+          </view>
+          <view class="footer-right">
+            <text class="article-time">{{ formatDate(item.publishedAt,"YYYY-MM-DD HH:mm") }}</text>
+            <view class="article-views">
+              <u-icon name="eye" size="12" color="#bbb"></u-icon>
+              <text class="view-count">{{ item.viewCount || 0 }}次浏览</text>
+            </view>
+          </view>
         </view>
-        
-        <view class="article-desc">
-          <rich-text :nodes="processRichText(item.contentHtml)"></rich-text>
-        </view>
+      </view>
+      <view class="no-more" v-if="noMore && articleList.length > 0">
+        <text>没有更多了...</text>
       </view>
     </scroll-view>
   </view>
@@ -61,8 +65,9 @@ import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import uIcon from "uview-plus/components/u-icon/u-icon.vue";
 import { getIeArticle } from "@/api/integraEdu.js";
-import {getIeTopic} from "@/api/index.js";
+import { getIeTopic } from "@/api/index.js";
 import { formatImageUrl } from "@/utils/formatImageUrl.js";
+import { formatDate } from "@/utils/formatDate.js";
 
 const currentTopicId = ref('');
 const currentTopicName = ref('');
@@ -203,8 +208,13 @@ const processRichText = (html) => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 300rpx;
-  background: linear-gradient(180deg, #e0efff 0%, rgba(248, 251, 255, 0) 100%);
+  height: 100%;
+  background-image: url("/static/img/bgImg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.3;
+  filter: blur(15px);
+  transform: scale(1.1); /* Prevents white edges from blur */
   pointer-events: none;
   z-index: 0;
 }
@@ -215,6 +225,7 @@ const processRichText = (html) => {
   padding: 20rpx 28rpx;
   position: relative;
   z-index: 10;
+  background-color: #fff;
 }
 
 .topic-tab {
@@ -247,97 +258,124 @@ const processRichText = (html) => {
   padding: 0 30rpx 30rpx;
   box-sizing: border-box;
   overflow: hidden;
+  margin-top: 32rpx;
 }
 
 .article-card {
+  display: flex;
+  flex-direction: column;
   background-color: #ffffff;
   border-radius: 20rpx;
-  padding: 30rpx;
+  padding: 32rpx 24rpx;
   margin-bottom: 30rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.02);
   
-  .article-title-row {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 20rpx;
-    
-    .icon-wrap {
-      margin-right: 20rpx;
-      margin-top: 4rpx;
-    }
-    
-    .article-title {
-      flex: 1;
-      font-size: 34rpx;
-      font-weight: bold;
-      color: #333;
-      line-height: 1.4;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .article-title {
+    font-size: 34rpx;
+    font-weight: bold;
+    color: #1a1a1a;
+    line-height: 1.5;
+    margin-bottom: 12rpx;
+    display: block;
   }
   
-  .article-info-row {
+  .article-body {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 20rpx;
     margin-bottom: 20rpx;
-    .article-org {
+    align-items: flex-start;
+  }
+
+  .article-cover {
+    width: 200rpx;
+    height: 150rpx;
+    border-radius: 12rpx;
+    flex-shrink: 0;
+    background-color: #f7f8fa;
+    display: block;
+    object-fit: cover;
+  }
+
+  .article-content {
+    flex: 1;
+    min-width: 0;
+
+    .article-desc {
       font-size: 28rpx;
-      color: #999;
-    }
+      color: #666;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      overflow: hidden;
+      text-align: justify;
 
-    .article-views {
-      display: flex;
-      align-items: center;
-      gap: 6rpx;
-
-      .view-count {
-        font-size: 24rpx;
-        color: #999;
+      :deep(*) {
+        display: inline !important;
+        font-weight: normal !important;
+        font-size: 28rpx !important;
+        background: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
     }
   }
-  
-  .article-tags {
+
+  .article-footer {
     display: flex;
-    flex-wrap: wrap;
-    gap: 16rpx;
-    margin-bottom: 24rpx;
-    
-    .tag {
-      background-color: #e6f7ff;
-      color: #1890ff;
-      font-size: 24rpx;
-      padding: 6rpx 20rpx;
-      border-radius: 10rpx;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12rpx;
+    border-top: 1rpx solid #f9f9f9;
+
+    .article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12rpx;
+      flex: 1;
+      margin-right: 20rpx;
+      
+      .tag {
+        font-size: 20rpx;
+        color: #3b82f6;
+        background: #eff6ff;
+        padding: 4rpx 14rpx;
+        border-radius: 8rpx;
+      }
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 16rpx;
+      flex-shrink: 0;
+
+      .article-time {
+        font-size: 22rpx;
+        color: #bbb;
+      }
+
+      .article-views {
+        display: flex;
+        align-items: center;
+        gap: 6rpx;
+
+        .view-count {
+          font-size: 22rpx;
+          color: #bbb;
+        }
+      }
     }
   }
-  
-  .article-desc {
-    font-size: 30rpx;
-    color: #666;
-    line-height: 1.6;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    overflow: hidden;
-    padding: 0 20rpx 0 0; /* Align with title text */
-    text-indent: 2em; /* 首行缩进两个字符 */
-    text-align: justify;
+}
 
-    /* 强制内部元素不加粗、不换行且字体统一 */
-    :deep(*) {
-      display: inline !important;
-      font-weight: normal !important;
-      font-size: 30rpx !important;
-      background: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      text-indent: 0 !important; /* 防止子元素重复缩进 */
-    }
+.no-more {
+  text-align: center;
+  
+  text {
+    font-size: 24rpx;
+    color: #999;
   }
 }
 </style>

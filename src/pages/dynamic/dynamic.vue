@@ -110,7 +110,7 @@ const getTags = (tagsStr) => {
 
 const goToDetail = (item) => {
   uni.navigateTo({
-    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?id=${item.id}`
+    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${item.id}`
   });
 };
 </script>

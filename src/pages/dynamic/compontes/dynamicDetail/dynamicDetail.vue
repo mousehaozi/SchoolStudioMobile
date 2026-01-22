@@ -11,7 +11,7 @@
         <view class="meta-info">
           <view class="meta-item">
             <text class="meta-label">发布：</text>
-            <text class="meta-value">{{ detailData.publisher || '无' }}</text>
+            <text class="meta-value">{{ detailData.author || '无' }}</text>
           </view>
           <view class="meta-divider"></view>
           <view class="meta-item">
@@ -19,12 +19,15 @@
             <text class="meta-value">{{ formatDate(detailData.publishedAt) || '---' }}</text>
           </view>
         </view>
+
         <!-- Tags Section -->
         <view class="tags-section">
           <view class="tag blue-tag" v-for="(tag, index) in getTags(detailData.tags)" :key="index">
             {{ tag }}
           </view>
         </view>
+
+        <view class="card-divider header-divider"></view>
       </view>
 
       <view class="card-divider"></view>
@@ -36,18 +39,6 @@
 
       <!-- Footer Info -->
       <view class="footer-section">
-        <view class="info-shelf">
-          <view class="shelf-item">
-            <view class="icon-box">
-              <u-icon name="map-fill" size="18" color="#3B82F6"></u-icon>
-            </view>
-            <view class="shelf-content">
-              <text class="shelf-label">活动地点</text>
-              <text class="shelf-value">重庆市黔江区 武陵山科创中心</text>
-            </view>
-          </view>
-        </view>
-
         <view class="share-box">
           <text class="share-title">分享至</text>
           <view class="share-icons">
@@ -66,6 +57,7 @@ import { onLoad } from '@dcloudio/uni-app';
 import uIcon from 'uview-plus/components/u-icon/u-icon.vue';
 import { imgBaseUrl } from "@/utils/baseUrl.js";
 import { formatDate } from "@/utils/formatDate.js";
+import { getStudioNewsDetail } from "@/api/index.js";
 
 const detailData = ref({});
 
@@ -77,6 +69,8 @@ const formatImageUrl = (url) => {
 
 const getTags = (tagsStr) => {
   if (!tagsStr) return [];
+  // Some APIs might return an array already, handle both
+  if (Array.isArray(tagsStr)) return tagsStr;
   return tagsStr.split(",");
 };
 
@@ -95,10 +89,24 @@ const processRichText = (html) => {
 
 onLoad((options) => {
   if (options.data) {
-      detailData.value = JSON.parse(options.data);
-      console.log(detailData.value,'detailData');      
+    fetchDetail(options.data);
   }
 });
+
+const fetchDetail = async (id) => {
+  uni.showLoading({ title: '加载中...' });
+  try {
+    const res = await getStudioNewsDetail(id);
+    if (res.code === 200 || res.code === 0) {
+      detailData.value = res.data;
+    }
+  } catch (err) {
+    console.error("Fetch news detail failed", err);
+    uni.showToast({ title: '获取详情失败', icon: 'none' });
+  } finally {
+    uni.hideLoading();
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -150,14 +158,16 @@ onLoad((options) => {
   font-weight: bold;
   color: #111827;
   line-height: 1.4;
-  margin-bottom: 24rpx;
+  margin-bottom: 12rpx;
   display: block;
 }
 
 .meta-info {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     margin-bottom: 24rpx;
+    gap: 0;
 }
 
 .meta-item {
@@ -185,7 +195,9 @@ onLoad((options) => {
 
 .tags-section {
   display: flex;
+  flex-wrap: wrap;
   gap: 16rpx;
+  margin-bottom: 32rpx;
 }
 
 .tag {
@@ -199,6 +211,15 @@ onLoad((options) => {
   background-color: #EFF6FF;
   color: #3B82F6;
   border: 1rpx solid #DBEAFE;
+}
+
+.card-divider {
+  height: 1rpx;
+  background-color: #F3F4F6;
+}
+
+.header-divider {
+  margin: 16rpx 0 0 0;
 }
 
 .article-body {

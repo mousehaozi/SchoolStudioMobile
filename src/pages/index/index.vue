@@ -259,9 +259,7 @@ const techList = ref([
 
 const navigateToDetail = (item) => {
   uni.navigateTo({
-    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${encodeURIComponent(
-      JSON.stringify(item)
-    )}`,
+    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${item.id}`,
   });
 };
 

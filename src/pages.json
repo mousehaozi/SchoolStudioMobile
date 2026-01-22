@@ -55,7 +55,8 @@
 		{
 			"path": "pages/integraEdu/integraEdu",
 			"style": {
-				"navigationBarTitleText": "产教融合"
+				"navigationBarTitleText": "产教融合",
+				"navigationBarBackgroundColor": "#fff"
 			}
 		},
 		{

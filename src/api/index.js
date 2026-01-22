@@ -53,3 +53,12 @@ export const getIeTopic = () => {
         method: "GET",
     });
 };
+/**
+ * 获取工作动态详情
+ */
+export const getStudioNewsDetail = (id) => {
+    return request({
+        url: `/studio-news/${id}`,
+        method: "GET",
+    });
+};
