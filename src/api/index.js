@@ -62,3 +62,26 @@ export const getStudioNewsDetail = (id) => {
         method: "GET",
     });
 };
+
+/**
+ * 动态点赞
+ */
+export const studioNewsLike = (newsId) => {
+    return request({
+        url: `studio-news-like/${newsId}/toggle`,
+        method: "POST",
+    });
+};
+
+/**
+ * 文章点赞
+ */
+export const articleLike = (articleId) => {
+    return request({
+        url: `/ie-article-like/${articleId}/toggle`,
+        method: "POST",
+    });
+};
+
+
+
