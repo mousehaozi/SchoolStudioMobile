@@ -80,10 +80,6 @@
 
 	const detailData = ref({});
 
-	const formatImageUrl = (url) => {
-		return url || "";
-	};
-
 	// 点赞
 	const giveLikeFun = async () => {
 		console.log(detailData.value.id, '点赞');

@@ -138,11 +138,6 @@ const fetchProfile = async () => {
   }
 };
 
-const formatImageUrl = (url) => {
-  if (!url) return "";
-  return url;
-};
-
 onLoad(() => {
   fetchProfile();
 });

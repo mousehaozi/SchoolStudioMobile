@@ -16,7 +16,7 @@
 		<view class="news-list" v-if="dynamics.length > 0">
 			<view class="news-item" v-for="(item, index) in dynamics" :key="index" @click="goToDetail(item)">
 				<view class="news-image-wrap">
-					<image :src="formatImageUrl(item.coverUrl)" class="news-image" mode="aspectFill"></image>
+					<image :src="item.coverUrl || '/static/appLogo.png'" class="news-image" mode="aspectFill"></image>
 				</view>
 				<view class="news-content">
 					<view class="title-wrap">
@@ -65,9 +65,6 @@
 	import {
 		getStudioNews
 	} from "@/api/index.js";
-	import {
-		formatImageUrl
-	} from "@/utils/formatImageUrl.js";
 	import {
 		formatDate
 	} from "@/utils/formatDate.js";

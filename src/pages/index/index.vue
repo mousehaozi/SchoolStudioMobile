@@ -26,7 +26,7 @@
           <swiper-item v-for="(item, index) in bannerList" :key="index">
             <image
               class="banner-image"
-              :src="formatImageUrl(item.imageUrl)"
+              :src="item.imageUrl || '/static/appLogo.png'"
               mode="aspectFill"
             ></image>
           </swiper-item>
@@ -125,7 +125,7 @@
             @click="navigateToDetail(item)"
           >
             <image
-              :src="formatImageUrl(item.coverUrl)"
+              :src="item.coverUrl || '/static/appLogo.png'"
               class="news-image"
               mode="aspectFill"
             ></image>
@@ -167,7 +167,7 @@
             :key="index"
             @click="handlePublish(item)"
           >
-            <image :src="formatImageUrl(item.coverUrl || '')" class="popup-icon"></image>
+            <image :src="item.coverUrl || '/static/appLogo.png'" class="popup-icon"></image>
             <text>{{ item.name || item }}</text>
           </view>
         </view>
@@ -181,7 +181,6 @@ import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import uIcon from "uview-plus/components/u-icon/u-icon.vue";
 import { getStudioBanners, getStudioNews, getIeTopic } from "@/api/index.js";
-import { formatImageUrl } from "@/utils/formatImageUrl.js";
 import { formatDate } from "@/utils/formatDate.js";
 
 const showPopup = ref(false);

@@ -28,7 +28,7 @@
         <text class="article-title">{{ item.title }}</text>
         
         <view class="article-body">
-          <image v-if="item.coverUrl" :src="formatImageUrl(item.coverUrl)" mode="aspectFill" class="article-cover"></image>
+          <image v-if="item.coverUrl" :src="item.coverUrl" mode="aspectFill" class="article-cover"></image>
           <view class="article-content">
             <view class="article-desc">
               <rich-text :nodes="processRichText(item.contentHtml)"></rich-text>
@@ -66,7 +66,6 @@ import { onLoad } from '@dcloudio/uni-app';
 import uIcon from "uview-plus/components/u-icon/u-icon.vue";
 import { getIeArticle } from "@/api/integraEdu.js";
 import { getIeTopic } from "@/api/index.js";
-import { formatImageUrl } from "@/utils/formatImageUrl.js";
 import { formatDate } from "@/utils/formatDate.js";
 
 const currentTopicId = ref('');

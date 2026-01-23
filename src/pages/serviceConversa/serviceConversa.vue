@@ -49,7 +49,7 @@
 							<!-- Image Content -->
 							<view v-else-if="msg.msgType === 'IMAGE'" class="image-bubble"
 								@click="previewImage(msg.content)">
-								<image :src="formatUrl(msg.content)" mode="widthFix" class="chat-img"></image>
+								<image :src="msg.content" mode="widthFix" class="chat-img"></image>
 							</view>
 							<!-- Read Status -->
 							<view v-if="msg.role === 'user' && index === lastUserMsgIndex" class="read-status"
@@ -115,23 +115,6 @@
 		wsBaseUrl,
 	} from "@/utils/baseUrl.js";
 	import {
-		ensureSession,
-		getSessionList,
-		getSessionMessages,
-		sendChatMessage,
-		markSessionRead,
-		closeSession
-	} from "@/api/serviceConversa.js";
-	import {
-		uploadImage
-	} from "@/api/common.js";
-	import {
-		getUserProfile
-	} from "@/api/index.js";
-	import {
-		formatImageUrl
-	} from "@/utils/formatImageUrl.js";
-	import {
 		formatDate
 	} from "@/utils/formatDate.js";
 
@@ -194,7 +177,7 @@
 					const profileRes = await getUserProfile();
 					if (profileRes.code === 200 || profileRes.code === 0) {
 						if (profileRes.data.wechatAvatar) {
-							userAvatar.value = formatImageUrl(profileRes.data.wechatAvatar);
+							userAvatar.value = profileRes.data.wechatAvatar || '/static/appLogo.png';
 						}
 					}
 				} catch (e) {
@@ -456,14 +439,9 @@
 		});
 	};
 
-	const formatUrl = (url) => {
-		if (!url) return '';
-		return url;
-	};
-
 	const previewImage = (url) => {
 		uni.previewImage({
-			urls: [formatUrl(url)]
+			urls: [url]
 		});
 	};
 	const shouldShowTime = (msg, index) => {
