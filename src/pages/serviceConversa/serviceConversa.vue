@@ -117,6 +117,20 @@
 	import {
 		formatDate
 	} from "@/utils/formatDate.js";
+	import {
+		ensureSession,
+		getSessionList,
+		getSessionMessages,
+		sendChatMessage,
+		markSessionRead,
+		closeSession
+	} from "@/api/serviceConversa.js";
+	import {
+		uploadImage
+	} from "@/api/common.js";
+	import {
+		getUserProfile
+	} from "@/api/index.js";
 
 	const inputValue = ref('');
 	const messages = ref([]);
@@ -202,6 +216,7 @@
 	const initSocket = () => {
 		const token = uni.getStorageSync('token');
 		const url = token ? `${wsBaseUrl()}?token=${token}` : wsBaseUrl();
+		status.value = 'connecting';
 		socket.connect(url);
 
 		socket.onStatusChange((s) => {

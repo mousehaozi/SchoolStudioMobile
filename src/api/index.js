@@ -68,7 +68,7 @@ export const getStudioNewsDetail = (id) => {
  */
 export const studioNewsLike = (newsId) => {
     return request({
-        url: `studio-news-like/${newsId}/toggle`,
+        url: `/studio-news-like/${newsId}/toggle`,
         method: "POST",
     });
 };
