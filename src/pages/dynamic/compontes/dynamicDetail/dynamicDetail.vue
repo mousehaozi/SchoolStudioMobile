@@ -71,9 +71,6 @@
 	} from '@dcloudio/uni-app';
 	import uIcon from 'uview-plus/components/u-icon/u-icon.vue';
 	import {
-		imgBaseUrl
-	} from "@/utils/baseUrl.js";
-	import {
 		formatDate
 	} from "@/utils/formatDate.js";
 	import {
@@ -84,9 +81,7 @@
 	const detailData = ref({});
 
 	const formatImageUrl = (url) => {
-		if (!url) return "";
-		if (url.startsWith("http")) return url;
-		return imgBaseUrl() + url;
+		return url || "";
 	};
 
 	// 点赞
@@ -119,15 +114,7 @@
 
 	const processRichText = (html) => {
 		if (!html) return "";
-		const base = imgBaseUrl();
-		let content = html.replace(/<img[^>]+src="([^">]+)"/g, (match, src) => {
-			if (src.startsWith("http") || src.startsWith("data:")) {
-				return match;
-			}
-			return match.replace(src, base + src);
-		});
-		content = content.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
-		return content;
+		return html.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
 	};
 
 	const articleId = ref('');

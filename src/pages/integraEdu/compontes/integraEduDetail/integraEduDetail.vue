@@ -50,9 +50,6 @@
 		getIeArticleDetail
 	} from "@/api/integraEdu.js";
 	import {
-		imgBaseUrl
-	} from "@/utils/baseUrl.js";
-	import {
 		formatDate
 	} from "@/utils/formatDate.js";
 	import uIcon from "uview-plus/components/u-icon/u-icon.vue";
@@ -115,16 +112,7 @@
 
 	const processRichText = (html) => {
 		if (!html) return '内容加载中...';
-
-		const base = imgBaseUrl();
-		return html.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, (match, src) => {
-			let newSrc = src;
-			if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-				const prefix = src.startsWith('/') ? '' : '/';
-				newSrc = base + prefix + src;
-			}
-			return match.replace(src, newSrc);
-		}).replace(/<img/gi,
+		return html.replace(/<img/gi,
 			'<img style="max-width:100%;height:auto;display:block;margin:20rpx 0;border-radius:12rpx;"');
 	};
 </script>

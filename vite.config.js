@@ -1,19 +1,22 @@
-import { defineConfig } from 'vite'
-import uni from '@dcloudio/vite-plugin-uni'
+import { defineConfig } from "vite";
+import uni from "@dcloudio/vite-plugin-uni";
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    uni(),
-  ],
+  plugins: [uni()],
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 8081,
     proxy: {
-      '/api': {
-        target: "http://192.168.0.121:8080/api/v1",
+      "/api": {
+        target: "http://127.0.0.1:8080",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
-  }
-})
+        secure: false,
+        ws: true,
+        rewrite: (path) => {
+          if (path.startsWith("/api/v1")) return path;
+          return path.replace(/^\/api/, "/api/v1");
+        },
+      },
+    },
+  },
+});

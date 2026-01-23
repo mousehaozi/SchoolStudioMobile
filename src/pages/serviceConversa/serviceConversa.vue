@@ -113,7 +113,6 @@
 	import socket from "@/utils/ws.js";
 	import {
 		wsBaseUrl,
-		imgBaseUrl
 	} from "@/utils/baseUrl.js";
 	import {
 		ensureSession,
@@ -459,8 +458,7 @@
 
 	const formatUrl = (url) => {
 		if (!url) return '';
-		if (url.startsWith('http')) return url;
-		return imgBaseUrl() + url;
+		return url;
 	};
 
 	const previewImage = (url) => {

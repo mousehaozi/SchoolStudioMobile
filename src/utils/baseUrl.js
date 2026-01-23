@@ -9,12 +9,12 @@ export function baseUrl() {
  * 获取图片基础地址
  */
 export function imgBaseUrl() {
-	return "http://192.168.0.121:8080";
+	return "/api";
 }
 
 /**
  * 获取 WebSocket 基础地址
  */
 export function wsBaseUrl() {
-	return "ws://192.168.0.121:8080/api/v1/ws";
+	return "ws://112.124.23.138:8080/api/v1/ws";
 }

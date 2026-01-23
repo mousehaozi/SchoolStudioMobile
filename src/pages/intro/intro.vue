@@ -92,7 +92,6 @@
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioProfile } from "@/api/intro.js";
-import { imgBaseUrl } from "@/utils/baseUrl.js";
 
 const profile = ref({
   title: "",
@@ -107,17 +106,8 @@ const profile = ref({
 
 const processRichText = (html) => {
   if (!html) return "";
-  const base = imgBaseUrl();
-  // 1. 处理图片路径
-  let content = html.replace(/<img[^>]+src="([^">]+)"/g, (match, src) => {
-    if (src.startsWith("http") || src.startsWith("data:")) {
-      return match;
-    }
-    return match.replace(src, base + src);
-  });
-  // 2. 为图片添加宽度 100% 的样式，防止溢出
-  content = content.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
-  return content;
+  // 为图片添加宽度 100% 的样式，防止溢出
+  return html.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
 };
 
 const fetchProfile = async () => {
@@ -149,11 +139,8 @@ const fetchProfile = async () => {
 };
 
 const formatImageUrl = (url) => {
-  console.log(imgBaseUrl(),"imgBaseUrl");
   if (!url) return "";
-  if (url.startsWith("http")) return url;
-  return imgBaseUrl() + url;
-  
+  return url;
 };
 
 onLoad(() => {
