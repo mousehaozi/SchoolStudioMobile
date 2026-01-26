@@ -13,7 +13,7 @@
             mode="widthFix"
           ></image>
         </view>
-        <text class="header-title">重庆工业职业技术大学创新工作室</text>
+        <text class="header-title">重工车辆工程学院成果转化创新工作室</text>
         <view class="header-right-spacer"></view>
       </view>
     </view>
@@ -32,6 +32,20 @@
           </swiper-item>
         </swiper>
       </view>
+
+      <!-- Studio Business Card -->
+      <a class="card studio-card" href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzIxNTE0MjMzNw==#wechat_redirect" style="text-decoration: none;">
+        <view class="studio-info">
+          <image src="/static/img/index/lilei.jpg" class="studio-logo"></image>
+          <view class="studio-text">
+            <text class="studio-name">李雷工作室</text>
+            <text class="studio-desc">汽车技术交流学习和专业课程建设</text>
+          </view>
+        </view>
+        <view class="follow-btn">
+          <text>关注</text>
+        </view>
+      </a>
 
       <!-- Nav Card -->
       <view class="card nav-card">
@@ -145,7 +159,9 @@
                     src="/static/img/index/calendar.svg"
                     class="calendar-icon"
                   ></image>
-                  <text class="news-date">{{ formatDate(item.publishedAt) }}</text>
+                  <text class="news-date">{{
+                    formatDate(item.publishedAt)
+                  }}</text>
                 </view>
               </view>
             </view>
@@ -167,7 +183,10 @@
             :key="index"
             @click="handlePublish(item)"
           >
-            <image :src="item.coverUrl || '/static/appLogo.png'" class="popup-icon"></image>
+            <image
+              :src="item.coverUrl || '/static/appLogo.png'"
+              class="popup-icon"
+            ></image>
             <text>{{ item.name || item }}</text>
           </view>
         </view>
@@ -215,7 +234,8 @@ const fetchTopicList = async () => {
   try {
     const res = await getIeTopic();
     if (res.code === 0 || res.code === 200) {
-      topicList.value = res.data.length > 0 ? res.data : ["需求发布", "成果发布", "知产发布"];
+      topicList.value =
+        res.data.length > 0 ? res.data : ["需求发布", "成果发布", "知产发布"];
     }
   } catch (error) {
     console.error("Failed to fetch topics:", error);
@@ -226,7 +246,6 @@ const getTags = (tagsStr) => {
   if (!tagsStr) return [];
   return tagsStr.split(",").slice(0, 2); // 取前两个
 };
-
 
 onLoad(() => {
   const sysInfo = uni.getSystemInfoSync();
@@ -268,8 +287,8 @@ const togglePopup = () => {
 
 const handlePublish = (item) => {
   showPopup.value = false;
-  const idValue = typeof item === 'object' ? item.id : item;
-  const nameValue = typeof item === 'object' ? item.name : item;
+  const idValue = typeof item === "object" ? item.id : item;
+  const nameValue = typeof item === "object" ? item.name : item;
   uni.navigateTo({
     url: `/pages/integraEdu/integraEdu?id=${idValue}&name=${nameValue}`,
   });
@@ -279,6 +298,17 @@ const navigateTo = (url) => {
   uni.navigateTo({
     url: url,
   });
+};
+
+const openUrl = (url) => {
+  // #ifdef H5
+  window.location.href = url;
+  // #endif
+  // #ifndef H5
+  uni.navigateTo({
+    url: `/pages/webview/webview?url=${encodeURIComponent(url)}`,
+  });
+  // #endif
 };
 
 const getTagClass = (tag) => {
@@ -338,10 +368,10 @@ const getTagClass = (tag) => {
 }
 
 .header-title {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
-  font-size: 34rpx;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 30rpx;
   font-weight: 800; /* Extra bold for authority */
   color: #1a1a1a;
   letter-spacing: 2rpx;
@@ -385,7 +415,7 @@ const getTagClass = (tag) => {
 
 /* Cards Common Style */
 .card {
-  background-color:rgba(255,255,255,0.8);
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 20rpx;
   padding: 20rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
@@ -431,6 +461,7 @@ const getTagClass = (tag) => {
 .nav-grid {
   display: flex;
   justify-content: space-around;
+  padding: 10rpx 0;
 }
 
 .nav-item {
@@ -443,6 +474,63 @@ const getTagClass = (tag) => {
     color: #333;
     font-family: "DingTalk JinBuTi", sans-serif;
   }
+}
+
+.studio-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx !important;
+  margin-bottom: 10rpx;
+  background-color: #fff !important;
+  text-decoration: none;
+  color: inherit;
+}
+
+.studio-card:active {
+  background-color: #f9f9f9 !important;
+}
+
+.studio-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.studio-logo {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  border: 1rpx solid #f0f0f0;
+}
+
+.studio-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.studio-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin-bottom: 6rpx;
+}
+
+.studio-desc {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.follow-btn {
+  background-color: #07c160;
+  color: white;
+  padding: 10rpx 28rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-left: 20rpx;
 }
 
 .icon-wrapper {
@@ -675,7 +763,7 @@ const getTagClass = (tag) => {
   flex-direction: column;
   align-items: center;
 
-  text{
+  text {
     color: #333;
     font-size: 28rpx;
   }

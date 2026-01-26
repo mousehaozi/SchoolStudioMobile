@@ -1,5 +1,11 @@
 <template>
 	<view class="container">
+		<!-- 微信分享隐形封面：强制让微信抓取文章第一张图或Logo -->
+		<!-- 使用绝对定位移出屏幕，而不是 display:none，以提高微信抓取成功率 -->
+		<view style="position: absolute; top: -9999rpx; left: -9999rpx; width: 400rpx; height: 400rpx; overflow: hidden;">
+			<image :src="shareImage" mode="aspectFill" style="width: 400rpx; height: 400rpx;"></image>
+		</view>
+
 		<!-- Global Background -->
 		<view class="global-background"></view>
 
@@ -52,11 +58,23 @@
 				<view class="share-box">
 					<text class="share-title">分享至</text>
 					<view class="share-icons">
-						<view class="share-icon-btn"><u-icon name="weixin-fill" size="24" color="#07C160"></u-icon>
+						<view class="share-icon-btn" @click="handleShare">
+							<u-icon name="weixin-fill" size="24" color="#07C160"></u-icon>
 						</view>
-						<view class="share-icon-btn"><u-icon name="moments" size="24" color="#07C160"></u-icon></view>
+						<view class="share-icon-btn" @click="handleShare">
+							<u-icon name="moments" size="24" color="#07C160"></u-icon>
+						</view>
 					</view>
 				</view>
+			</view>
+		</view>
+
+		<!-- Share Guide Overlay -->
+		<view class="share-guide" v-if="showGuide" @click="showGuide = false">
+			<view class="guide-content">
+				<view class="guide-arrow">⤴</view>
+				<text class="guide-text">点击右上角更多按钮</text>
+				<text class="guide-text">分享给好友或朋友圈</text>
 			</view>
 		</view>
 	</view>
@@ -79,6 +97,28 @@
 	} from "@/api/index.js";
 
 	const detailData = ref({});
+	const shareImage = ref(window.location.origin + '/static/appLogo.png');
+
+	// 提取富文本中的第一张图片
+	const extractFirstImg = (html) => {
+		const defaultLogo = window.location.origin + '/static/appLogo.png';
+		if (!html) return defaultLogo;
+		const imgReg = /<img.*?(?:>|\/>)/gi;
+		const srcReg = /src=[\'\"]?([^\'\"]*)[\'\"]?/i;
+		const arr = html.match(imgReg);
+		if (arr && arr.length > 0) {
+			const src = arr[0].match(srcReg);
+			if (src && src[1]) {
+				let url = src[1];
+				// 如果是相对路径，补全域名
+				if (url.startsWith('/')) {
+					return window.location.origin + url;
+				}
+				return url;
+			}
+		}
+		return defaultLogo;
+	};
 
 	// 点赞
 	const giveLikeFun = async () => {
@@ -114,6 +154,11 @@
 	};
 
 	const articleId = ref('');
+	const showGuide = ref(false);
+
+	const handleShare = () => {
+		showGuide.value = true;
+	};
 
 	onLoad((options) => {
 		if (options.data) {
@@ -130,6 +175,12 @@
 			const res = await getStudioNewsDetail(id);
 			if (res.code === 200 || res.code === 0) {
 				detailData.value = res.data;
+				// 更新分享图片
+				shareImage.value = extractFirstImg(res.data.contentHtml);
+				// H5环境下动态修改标题，确保微信分享抓取的标题正确
+				if (res.data.title) {
+					document.title = res.data.title;
+				}
 			}
 		} catch (err) {
 			console.error("Fetch news detail failed", err);
@@ -433,6 +484,50 @@
 		to {
 			opacity: 1;
 			transform: translateY(0);
+		}
+	}
+
+	.share-guide {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.85);
+		z-index: 9999;
+		display: flex;
+		justify-content: flex-end;
+		padding-right: 60rpx;
+		padding-top: 40rpx;
+	}
+
+	.guide-content {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+	}
+
+	.guide-arrow {
+		font-size: 100rpx;
+		color: #fff;
+		margin-bottom: 20rpx;
+		animation: bounce 1s infinite alternate;
+	}
+
+	.guide-text {
+		color: #fff;
+		font-size: 34rpx;
+		font-weight: 500;
+		line-height: 1.6;
+		text-align: right;
+	}
+
+	@keyframes bounce {
+		from {
+			transform: translateY(0);
+		}
+		to {
+			transform: translateY(-20rpx);
 		}
 	}
 </style>
