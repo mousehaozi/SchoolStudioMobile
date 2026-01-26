@@ -5,58 +5,51 @@
 
     <!-- Topic Tabs (Removed sliding effect) -->
     <view class="topic-tabs-container">
-      <view 
-        v-for="(topic, index) in topicList" 
-        :key="index"
-        class="topic-tab"
-        :class="{ active: currentTopicId === topic }"
-        @click="switchTopic(topic)"
-      >
+      <view v-for="(topic, index) in topicList" :key="index" class="topic-tab"
+        :class="{ active: currentTopicId === topic }" @click="switchTopic(topic)">
         <text class="topic-text">{{ topic.name }}</text>
       </view>
     </view>
 
+    <!-- Loading State -->
+    <view v-if="initialLoading" class="loading-state">
+      <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
+    </view>
 
-    <!-- Article List -->
-    <scroll-view class="article-list" scroll-y @scrolltolower="loadMore">
-      <view 
-        v-for="(item, index) in articleList" 
-        :key="index"
-        class="article-card"
-        @click="goToDetail(item)"
-      >
-        <text class="article-title">{{ item.title }}</text>
-        
-        <view class="article-body">
-          <image v-if="item.coverUrl" :src="item.coverUrl" mode="aspectFill" class="article-cover"></image>
-          <view class="article-content">
-            <view class="article-desc">
-              <rich-text :nodes="processRichText(item.contentHtml)"></rich-text>
+    <template v-else>
+      <!-- Article List -->
+      <scroll-view class="article-list" scroll-y @scrolltolower="loadMore">
+        <view v-for="(item, index) in articleList" :key="index" class="article-card" @click="goToDetail(item)">
+          <text class="article-title">{{ item.title }}</text>
+
+          <view class="article-body">
+            <image v-if="item.coverUrl" :src="item.coverUrl" mode="aspectFill" class="article-cover"></image>
+            <view class="article-content">
+              <view class="article-desc">
+                <rich-text :nodes="processRichText(item.contentHtml)"></rich-text>
+              </view>
+            </view>
+          </view>
+
+          <view class="article-footer">
+            <view class="article-tags">
+              <text v-for="(tag, tIndex) in getTags(item.tags)" :key="tIndex" class="tag">{{ tag }}</text>
+            </view>
+            <view class="footer-right">
+              <text class="article-time">{{ formatDate(item.publishedAt, "YYYY-MM-DD HH:mm") }}</text>
+              <view class="article-views">
+                <u-icon name="eye" size="12" color="#bbb"></u-icon>
+                <text class="view-count">{{ item.viewCount || 0 }}次浏览</text>
+              </view>
             </view>
           </view>
         </view>
-        
-        <view class="article-footer">
-          <view class="article-tags">
-            <text 
-              v-for="(tag, tIndex) in getTags(item.tags)" 
-              :key="tIndex"
-              class="tag"
-            >{{ tag }}</text>
-          </view>
-          <view class="footer-right">
-            <text class="article-time">{{ formatDate(item.publishedAt,"YYYY-MM-DD HH:mm") }}</text>
-            <view class="article-views">
-              <u-icon name="eye" size="12" color="#bbb"></u-icon>
-              <text class="view-count">{{ item.viewCount || 0 }}次浏览</text>
-            </view>
-          </view>
+        <view class="no-more">
+          <u-loadmore :status="noMore ? 'nomore' : (loading ? 'loading' : 'loadmore')" :loading-text="'正在加载中...'"
+            :nomore-text="'没有更多了'" iconSize="16" fontSize="14" />
         </view>
-      </view>
-      <view class="no-more" v-if="noMore && articleList.length > 0">
-        <text>没有更多了...</text>
-      </view>
-    </scroll-view>
+      </scroll-view>
+    </template>
   </view>
 </template>
 
@@ -77,6 +70,7 @@ const page = ref(1);
 const size = ref(10);
 const loading = ref(false);
 const noMore = ref(false);
+const initialLoading = ref(true);
 
 onLoad((options) => {
   if (options.id) {
@@ -91,11 +85,11 @@ const fetchTopics = async () => {
     const res = await getIeTopic();
     if (res.code === 0 || res.code === 200) {
       topicList.value = res.data;
-      
+
       // 匹配从首页跳转过来的 ID
       if (currentTopicId.value) {
-        const found = topicList.value.find(t => 
-          (t.id && String(t.id) === String(currentTopicId.value)) || 
+        const found = topicList.value.find(t =>
+          (t.id && String(t.id) === String(currentTopicId.value)) ||
           (t.name === currentTopicId.value)
         );
         if (found) {
@@ -109,7 +103,7 @@ const fetchTopics = async () => {
         currentTopicId.value = topicList.value[0];
         currentTopicName.value = topicList.value[0].name;
       }
-      
+
       fetchArticles();
     }
   } catch (err) {
@@ -120,14 +114,14 @@ const fetchTopics = async () => {
 const fetchArticles = async (isMore = false) => {
   if (loading.value) return;
   loading.value = true;
-  
+
   try {
     const res = await getIeArticle({
       page: page.value,
       size: size.value,
       topicId: typeof currentTopicId.value === 'object' ? currentTopicId.value.id : currentTopicId.value
     });
-    
+
     if (res.code === 0 || res.code === 200) {
       const records = res.data.records || [];
       if (isMore) {
@@ -144,6 +138,7 @@ const fetchArticles = async (isMore = false) => {
     console.error(err);
   } finally {
     loading.value = false;
+    initialLoading.value = false;
   }
 };
 
@@ -213,14 +208,16 @@ const processRichText = (html) => {
   background-repeat: no-repeat;
   opacity: 0.3;
   filter: blur(15px);
-  transform: scale(1.1); /* Prevents white edges from blur */
+  transform: scale(1.1);
+  /* Prevents white edges from blur */
   pointer-events: none;
   z-index: 0;
 }
 
 .topic-tabs-container {
   display: flex;
-  flex-wrap: wrap; /* 允许换行，不滑动 */
+  flex-wrap: wrap;
+  /* 允许换行，不滑动 */
   padding: 20rpx 28rpx;
   position: relative;
   z-index: 10;
@@ -233,17 +230,17 @@ const processRichText = (html) => {
   padding: 10rpx 24rpx;
   margin-bottom: 20rpx;
   position: relative;
-  
+
   .topic-text {
     font-size: 28rpx;
     color: #666;
     transition: all 0.3s;
   }
-  
+
   &.active {
     background: rgba(59, 130, 246, 0.1);
     border-radius: 40rpx;
-    
+
     .topic-text {
       color: #000;
       font-weight: 500;
@@ -268,7 +265,7 @@ const processRichText = (html) => {
   padding: 32rpx 24rpx;
   margin-bottom: 30rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.02);
-  
+
   .article-title {
     font-size: 34rpx;
     font-weight: bold;
@@ -277,7 +274,7 @@ const processRichText = (html) => {
     margin-bottom: 12rpx;
     display: block;
   }
-  
+
   .article-body {
     display: flex;
     gap: 20rpx;
@@ -317,6 +314,7 @@ const processRichText = (html) => {
         background: none !important;
         margin: 0 !important;
         padding: 0 !important;
+        z-index: 1;
       }
     }
   }
@@ -334,7 +332,7 @@ const processRichText = (html) => {
       gap: 12rpx;
       flex: 1;
       margin-right: 20rpx;
-      
+
       .tag {
         font-size: 20rpx;
         color: #3b82f6;
@@ -371,10 +369,19 @@ const processRichText = (html) => {
 
 .no-more {
   text-align: center;
-  
+
   text {
     font-size: 24rpx;
     color: #999;
   }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 320rpx;
+  gap: 20rpx;
 }
 </style>

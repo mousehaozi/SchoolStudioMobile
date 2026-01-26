@@ -1,7 +1,7 @@
 <template>
   <view class="login-container">
     <view class="global-background"></view>
-    
+
     <view class="login-content">
       <!-- Logo & Title -->
       <view class="logo-section">
@@ -24,7 +24,7 @@
             <text>正在登录...</text>
           </template>
         </button>
-        
+
         <view class="agreement-row">
           <checkbox-group @change="onAgreementChange">
             <checkbox value="agreed" :checked="agreed" color="#3B82F6" style="transform:scale(0.7)" />
@@ -84,11 +84,11 @@ const handleWechatLogin = () => {
   const isWechat = /micromessenger/i.test(ua);
   if (isWechat) {
     // 【根据要求修改】重定向地址设为指定域名下的 /login
-    const localUrl = 'https://studio.qmd.qmdkj.cn/login';
+    const localUrl = 'https://studio.qmd.qmdkj.cn/#/pages/login/login';
     const encodeUrl = encodeURIComponent(localUrl);
     const scope = 'snsapi_userinfo';
     const state = Math.random().toString(36).substring(2, 15);
-    
+
     // 采用最稳健的 URL 拼接，避免编译干扰
     let authUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
     authUrl += '?appid=' + APPID;
@@ -97,7 +97,7 @@ const handleWechatLogin = () => {
     authUrl += '&scope=' + scope;
     authUrl += '&state=' + state;
     authUrl += '#wechat_redirect';
-    
+
     console.log('正在跳转微信授权...', authUrl);
     window.location.href = authUrl;
   } else {
@@ -128,18 +128,18 @@ const performLogin = async (code) => {
     console.log('正在向后端提交 Code:', code);
     const res = await wechatLogin(code);
     console.log('--- 登录接口返回原始数据 ---', res);
-    
+
     if (res && (res.code === 0 || res.code === 200)) {
       // 检查 res.data 下所有的 key，确认字段名
       console.log('【调试】res.data 所有的键:', Object.keys(res.data));
-      
+
       const { token } = res.data;
       // 尝试匹配不同的用户信息字段名：userInfo, user, 或者直接使用 res.data
       const userInfo = res.data.userInfo || res.data.user || res.data;
 
       console.log('【最终确认】Token:', token);
       console.log('【最终确认】用户信息对象:', userInfo);
-      
+
       if (userInfo) {
         console.log('>>> 昵称检测:', userInfo.nickname || userInfo.nickName || userInfo.userName || '未找到');
         console.log('>>> 头像检测:', userInfo.avatar || userInfo.headimgurl || userInfo.avatarUrl || '未找到');
@@ -148,7 +148,7 @@ const performLogin = async (code) => {
       uni.setStorageSync('token', token);
       uni.setStorageSync('userInfo', userInfo);
       uni.showToast({ title: '登录成功', icon: 'success' });
-      
+
       // 登录成功后重定向到首页，清除 URL 里的 code。
       setTimeout(() => {
         uni.reLaunch({ url: '/pages/index/index' });
@@ -170,12 +170,12 @@ onLoad((options) => {
   if (code) {
     // 【新增逻辑】既然跳回来带了 code，说明用户之前肯定点击并同意了，直接勾选上
     agreed.value = true;
-    
+
     if (!window._isLoggingIn) {
       window._isLoggingIn = true;
       console.log('检测到微信回调 Code:', code);
       performLogin(code);
-      
+
       // 3秒后释放锁，防止极端情况下页面没跳转也点不了按钮
       setTimeout(() => { window._isLoggingIn = false; }, 3000);
     }
@@ -204,7 +204,7 @@ onLoad((options) => {
   width: 100%;
   height: 100%;
   background: radial-gradient(circle at 70% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-              radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
+    radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
   z-index: 0;
 }
 
@@ -321,13 +321,27 @@ onLoad((options) => {
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-40rpx); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-40rpx);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(40rpx); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40rpx);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .btn-loader {
@@ -341,6 +355,8 @@ onLoad((options) => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

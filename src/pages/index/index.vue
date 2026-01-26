@@ -7,45 +7,30 @@
     <view class="custom-header" style="padding-top: 12rpx">
       <view class="header-content">
         <view class="header-left">
-          <image
-            src="/static/img/index/home.webp"
-            class="home-icon"
-            mode="widthFix"
-          ></image>
+          <image src="/static/img/index/home.webp" class="home-icon" mode="widthFix"></image>
         </view>
         <text class="header-title">重工车辆工程学院成果转化创新工作室</text>
         <view class="header-right-spacer"></view>
       </view>
     </view>
 
+    <!-- Loading State -->
+    <view v-if="loading" class="loading-state">
+      <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
+    </view>
+
     <!-- Scrollable Content Area -->
-    <view class="main-content">
+    <view class="main-content" v-else>
       <!-- Banner -->
       <view class="banner-wrapper">
         <swiper class="banner-swiper" circular indicator-dots autoplay>
-          <swiper-item v-for="(item, index) in bannerList" :key="index">
-            <image
-              class="banner-image"
-              :src="item.imageUrl || '/static/appLogo.png'"
-              mode="aspectFill"
-            ></image>
+          <swiper-item v-for="(item, index) in bannerList" :key="index" @click="onBannerClick(item)">
+            <image class="banner-image" :src="item.imageUrl || '/static/appLogo.png'" mode="aspectFill"></image>
           </swiper-item>
         </swiper>
       </view>
 
-      <!-- Studio Business Card -->
-      <a class="card studio-card" href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzIxNTE0MjMzNw==#wechat_redirect" style="text-decoration: none;">
-        <view class="studio-info">
-          <image src="/static/img/index/lilei.jpg" class="studio-logo"></image>
-          <view class="studio-text">
-            <text class="studio-name">李雷工作室</text>
-            <text class="studio-desc">汽车技术交流学习和专业课程建设</text>
-          </view>
-        </view>
-        <view class="follow-btn">
-          <text>关注</text>
-        </view>
-      </a>
+
 
       <!-- Nav Card -->
       <view class="card nav-card">
@@ -53,19 +38,13 @@
         <view class="nav-grid">
           <view class="nav-item" @click="navigateTo('/pages/intro/intro')">
             <view class="icon-wrapper">
-              <image
-                src="/static/img/index/WorkRoom.webp"
-                class="nav-icon"
-              ></image>
+              <image src="/static/img/index/WorkRoom.webp" class="nav-icon"></image>
             </view>
             <text>工作室介绍</text>
           </view>
           <view class="nav-item" @click="navigateTo('/pages/dynamic/dynamic')">
             <view class="icon-wrapper">
-              <image
-                src="/static/img/index/WorkUpdates.webp"
-                class="nav-icon"
-              ></image>
+              <image src="/static/img/index/WorkUpdates.webp" class="nav-icon"></image>
             </view>
             <text>工作动态</text>
           </view>
@@ -75,15 +54,9 @@
             </view>
             <text>产教融合</text>
           </view>
-          <view
-            class="nav-item"
-            @click="navigateTo('/pages/serviceConversa/serviceConversa')"
-          >
+          <view class="nav-item" @click="navigateTo('/pages/serviceConversa/serviceConversa')">
             <view class="icon-wrapper">
-              <image
-                src="/static/img/index/FeeBack.webp"
-                class="nav-icon"
-              ></image>
+              <image src="/static/img/index/FeeBack.webp" class="nav-icon"></image>
             </view>
             <text>问题咨询</text>
           </view>
@@ -132,33 +105,16 @@
           > -->
         </view>
         <view class="news-list">
-          <view
-            class="news-item"
-            v-for="(item, index) in newsList"
-            :key="index"
-            @click="navigateToDetail(item)"
-          >
-            <image
-              :src="item.coverUrl || '/static/appLogo.png'"
-              class="news-image"
-              mode="aspectFill"
-            ></image>
+          <view class="news-item" v-for="(item, index) in newsList" :key="index" @click="navigateToDetail(item)">
+            <image :src="item.coverUrl || '/static/appLogo.png'" class="news-image" mode="aspectFill"></image>
             <view class="news-content">
               <text class="news-title">{{ item.title }}</text>
               <view class="news-meta">
                 <view class="news-tags">
-                  <text
-                    class="tag blue-tag"
-                    v-for="(tag, tIndex) in getTags(item.tags)"
-                    :key="tIndex"
-                    >{{ tag }}</text
-                  >
+                  <text class="tag blue-tag" v-for="(tag, tIndex) in getTags(item.tags)" :key="tIndex">{{ tag }}</text>
                 </view>
                 <view class="news-date-container">
-                  <image
-                    src="/static/img/index/calendar.svg"
-                    class="calendar-icon"
-                  ></image>
+                  <image src="/static/img/index/calendar.svg" class="calendar-icon"></image>
                   <text class="news-date">{{
                     formatDate(item.publishedAt)
                   }}</text>
@@ -167,6 +123,27 @@
             </view>
           </view>
         </view>
+      </view>
+
+      <!-- Follow Us Section -->
+      <view class="card section-card">
+        <view class="section-header">
+          <text class="section-title">友情链接</text>
+        </view>
+        <a class="studio-link-card"
+          href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzIxNTE0MjMzNw==#wechat_redirect"
+          style="text-decoration: none;">
+          <view class="studio-info">
+            <image src="/static/img/index/lilei.jpg" class="studio-logo"></image>
+            <view class="studio-text">
+              <text class="studio-name">李雷工作室</text>
+              <text class="studio-desc">汽车技术交流学习和专业课程建设</text>
+            </view>
+          </view>
+          <view class="follow-btn">
+            <text>关注</text>
+          </view>
+        </a>
       </view>
     </view>
 
@@ -177,16 +154,8 @@
           <text>“渝教工心”产教融合</text>
         </view>
         <view class="popup-grid">
-          <view
-            class="popup-item"
-            v-for="(item, index) in topicList"
-            :key="index"
-            @click="handlePublish(item)"
-          >
-            <image
-              :src="item.coverUrl || '/static/appLogo.png'"
-              class="popup-icon"
-            ></image>
+          <view class="popup-item" v-for="(item, index) in topicList" :key="index" @click="handlePublish(item)">
+            <image :src="item.coverUrl || '/static/appLogo.png'" class="popup-icon"></image>
             <text>{{ item.name || item }}</text>
           </view>
         </view>
@@ -207,6 +176,7 @@ const statusBarHeight = ref(20);
 const bannerList = ref([]);
 const newsList = ref([]);
 const topicList = ref([]);
+const loading = ref(true);
 
 const fetchBanners = async () => {
   try {
@@ -250,9 +220,20 @@ const getTags = (tagsStr) => {
 onLoad(() => {
   const sysInfo = uni.getSystemInfoSync();
   statusBarHeight.value = sysInfo.statusBarHeight || 20;
-  fetchBanners();
-  fetchNews();
-  fetchTopicList();
+
+  // Set page title for H5
+  uni.setNavigationBarTitle({
+    title: '重工车辆工程学院成果转化创新工作室'
+  });
+
+  // Fetch all initial data
+  Promise.all([
+    fetchBanners(),
+    fetchNews(),
+    fetchTopicList()
+  ]).finally(() => {
+    loading.value = false;
+  });
 });
 
 const techList = ref([
@@ -279,6 +260,12 @@ const navigateToDetail = (item) => {
   uni.navigateTo({
     url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${item.id}`,
   });
+};
+
+const onBannerClick = (item) => {
+  if (item && item.linkUrl) {
+    openUrl(item.linkUrl);
+  }
 };
 
 const togglePopup = () => {
@@ -350,20 +337,23 @@ const getTagClass = (tag) => {
 }
 
 .header-content {
-  height: 44px; /* Standard nav bar height */
+  height: 44px;
+  /* Standard nav bar height */
   display: flex;
   align-items: center;
 }
 
 .header-left {
-  width: 80rpx; /* Increased to accommodate larger icon */
+  width: 80rpx;
+  /* Increased to accommodate larger icon */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .home-icon {
-  width: 64rpx; /* Slightly adjusted to fit better in the header height */
+  width: 64rpx;
+  /* Slightly adjusted to fit better in the header height */
   height: auto;
 }
 
@@ -372,7 +362,8 @@ const getTagClass = (tag) => {
     -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 30rpx;
-  font-weight: 800; /* Extra bold for authority */
+  font-weight: 800;
+  /* Extra bold for authority */
   color: #1a1a1a;
   letter-spacing: 2rpx;
 }
@@ -388,7 +379,7 @@ const getTagClass = (tag) => {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  padding: 10rpx 20rpx 40rpx;
+  padding: 10rpx 20rpx 52rpx;
 }
 
 /* Banner */
@@ -533,6 +524,19 @@ const getTagClass = (tag) => {
   margin-left: 20rpx;
 }
 
+.studio-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.studio-link-card:active {
+  opacity: 0.7;
+}
+
 .icon-wrapper {
   width: 96rpx;
   height: 96rpx;
@@ -545,7 +549,8 @@ const getTagClass = (tag) => {
 }
 
 .nav-icon {
-  width: 72rpx; /* Slightly smaller to fit background padding */
+  width: 72rpx;
+  /* Slightly smaller to fit background padding */
   height: 72rpx;
   position: relative;
   z-index: 2;
@@ -567,7 +572,8 @@ const getTagClass = (tag) => {
   font-weight: bold;
   font-style: italic;
   position: relative;
-  padding-left: 20rpx; /* Space for the vertical line */
+  padding-left: 20rpx;
+  /* Space for the vertical line */
 }
 
 /* Vertical Gradient Line */
@@ -579,11 +585,10 @@ const getTagClass = (tag) => {
   transform: translateY(-50%);
   width: 8rpx;
   height: 32rpx;
-  background: linear-gradient(
-    to bottom,
-    #4facfe,
-    #00f2fe
-  ); /* Light Blue Gradient */
+  background: linear-gradient(to bottom,
+      #4facfe,
+      #00f2fe);
+  /* Light Blue Gradient */
   border-radius: 4rpx;
 }
 
@@ -652,7 +657,8 @@ const getTagClass = (tag) => {
 
 /* News List */
 .news-item {
-  display: flex; /* Changed to row for better card look inside list? Or keep as column? Previous was column. */
+  display: flex;
+  /* Changed to row for better card look inside list? Or keep as column? Previous was column. */
   /* User didn't specify changing news item layout, but said "overall layout uses flex elastic layout".
      I'll keep specific item layout similar but cleaner. */
   flex-direction: column;
@@ -661,7 +667,8 @@ const getTagClass = (tag) => {
   overflow: hidden;
   background-color: #fff;
   /* box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05); Already in a card, so maybe remove item shadow or keep it subtle? */
-  border: 1rpx solid #eee; /* Light border since it's inside a white card */
+  border: 1rpx solid #eee;
+  /* Light border since it's inside a white card */
 }
 
 .news-item:last-child {
@@ -782,7 +789,8 @@ const getTagClass = (tag) => {
   padding: 6rpx 24rpx;
   border-radius: 30rpx;
   display: inline-block;
-  margin-right: 0; /* Handled by gap */
+  margin-right: 0;
+  /* Handled by gap */
 }
 
 .blue-tag {
@@ -807,5 +815,19 @@ const getTagClass = (tag) => {
   color: #ffb400;
   border: 1px solid #ffb400;
   background-color: #fff;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 320rpx;
+  gap: 20rpx;
+
+  .loading-text {
+    font-size: 28rpx;
+    color: #9CA3AF;
+  }
 }
 </style>

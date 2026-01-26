@@ -1,5 +1,5 @@
 {
-    "name": "",
+    "name": "重工车辆工程学院成果转化创新工作室",
     "appid": "",
     "description": "",
     "versionName": "1.0.0",
@@ -48,6 +48,7 @@
         }
     },
     "h5": {
+        "title": "重工车辆工程学院成果转化创新工作室",
         "router": {
             "mode": "hash",
             "base": "./"
