@@ -4,13 +4,10 @@
     <view class="global-background"></view>
 
     <!-- Custom Header -->
-    <view class="custom-header" style="padding-top: 12rpx">
+    <view class="custom-header">
       <view class="header-content">
-        <view class="header-left">
-          <image src="/static/img/index/home.webp" class="home-icon" mode="widthFix"></image>
-        </view>
+        <image src="/static/appLogo.png" class="home-icon" mode="aspectFit"></image>
         <text class="header-title">重工车辆工程学院成果转化创新工作室</text>
-        <view class="header-right-spacer"></view>
       </view>
     </view>
 
@@ -19,145 +16,79 @@
       <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
     </view>
 
-    <!-- Scrollable Content Area -->
-    <view class="main-content" v-else>
-      <!-- Banner -->
-      <view class="banner-wrapper">
-        <swiper class="banner-swiper" circular indicator-dots autoplay>
+    <!-- Main Content Area -->
+    <view class="main-body" v-else>
+      <!-- Banner Section -->
+      <view class="banner-section">
+        <swiper class="banner-swiper" circular indicator-dots autoplay interval="5000" duration="1000"
+          indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
           <swiper-item v-for="(item, index) in bannerList" :key="index" @click="onBannerClick(item)">
             <image class="banner-image" :src="item.imageUrl || '/static/appLogo.png'" mode="aspectFill"></image>
           </swiper-item>
         </swiper>
       </view>
 
+      <!-- Split Layout Area -->
+      <view class="split-container" v-if="studioList.length > 0">
+        <!-- Left: Studio List -->
+        <view class="sidebar">
+          <scroll-view scroll-y class="sidebar-scroll">
+            <view class="sidebar-title">
+              <image src="/static/img/index/home.webp" class="sidebar-title-icon" mode="widthFix"></image>
+              <text>工作室</text>
+            </view>
+            <view v-for="studio in studioList" :key="studio.id" class="sidebar-item"
+              :class="{ active: currentStudioId === studio.id }" @click="currentStudioId = studio.id">
+              <image v-if="studio.iconUrl" :src="studio.iconUrl" class="studio-icon" mode="aspectFill">
+              </image>
+              <text class="studio-name">{{ studio.name }}</text>
+            </view>
+          </scroll-view>
+        </view>
 
+        <!-- Right: Tabs & Content -->
+        <view class="content-main">
+          <!-- Tab Bar -->
+          <view class="tab-header">
+            <view class="tab-item" :class="{ active: currentTab === 'intro' }" @click="currentTab = 'intro'">
+              <view class="tab-icon-wrap">
+                <image src="/static/img/index/WorkRoom.webp" class="tab-icon"></image>
+              </view>
+              <text>工作室介绍</text>
+            </view>
+            <view class="tab-item" :class="{ active: currentTab === 'dynamic' }" @click="currentTab = 'dynamic'">
+              <view class="tab-icon-wrap">
+                <image src="/static/img/index/WorkUpdates.webp" class="tab-icon"></image>
+              </view>
+              <text>工作动态</text>
+            </view>
+            <view class="tab-item" :class="{ active: currentTab === 'integraEdu' }" @click="currentTab = 'integraEdu'">
+              <view class="tab-icon-wrap">
+                <image src="/static/img/index/need.webp" class="tab-icon"></image>
+              </view>
+              <text>产教融合</text>
+            </view>
+          </view>
 
-      <!-- Nav Card -->
-      <view class="card nav-card">
-        <!-- Main Navigation Grid -->
-        <view class="nav-grid">
-          <view class="nav-item" @click="navigateTo('/pages/intro/intro')">
-            <view class="icon-wrapper">
-              <image src="/static/img/index/WorkRoom.webp" class="nav-icon"></image>
-            </view>
-            <text>工作室介绍</text>
-          </view>
-          <view class="nav-item" @click="navigateTo('/pages/dynamic/dynamic')">
-            <view class="icon-wrapper">
-              <image src="/static/img/index/WorkUpdates.webp" class="nav-icon"></image>
-            </view>
-            <text>工作动态</text>
-          </view>
-          <view class="nav-item" @click="togglePopup">
-            <view class="icon-wrapper">
-              <image src="/static/img/index/need.webp" class="nav-icon"></image>
-            </view>
-            <text>产教融合</text>
-          </view>
-          <view class="nav-item" @click="navigateTo('/pages/serviceConversa/serviceConversa')">
-            <view class="icon-wrapper">
-              <image src="/static/img/index/FeeBack.webp" class="nav-icon"></image>
-            </view>
-            <text>问题咨询</text>
+          <!-- Scrollable Component Area -->
+          <view class="component-wrapper">
+            <scroll-view scroll-y class="component-scroll" :scroll-top="scrollTop" @scroll="onScroll"
+              @scrolltolower="handleScrollToLower" :show-scrollbar="false" enhanced :bounces="true">
+              <IntroComponent v-if="currentTab === 'intro'" :studioId="currentStudioId" ref="introRef" />
+              <DynamicComponent v-if="currentTab === 'dynamic'" :studioId="currentStudioId" ref="dynamicRef" />
+              <IntegraEduComponent v-if="currentTab === 'integraEdu'" :studioId="currentStudioId" ref="integraEduRef" />
+              <!-- Bottom Spacer for better scroll experience -->
+              <view class="scroll-bottom-spacer"></view>
+            </scroll-view>
           </view>
         </view>
       </view>
 
-      <!-- Tech Transfer Section -->
-      <!-- <view class="card section-card">
-        <view class="section-header">
-          <text class="section-title">成果转化</text>
-          <text class="more-link">更多</text>
-        </view>
-        <view class="tech-list">
-          <view
-            class="tech-item"
-            v-for="(item, index) in techList"
-            :key="index"
-            @click="navigateTo('/pages/technologyTransfer/technologyTransfer')"
-          >
-            <view class="tech-info">
-              <view class="tech-title-wrap">
-                <view class="tech-status-dot" :class="index % 2 === 0 ? 'status-blue' : 'status-orange'"></view>
-                <text class="tech-title">{{ item.title }}</text>
-              </view>
-              <view class="tech-tags">
-                <text
-                  class="tag"
-                  :class="getTagClass(tag)"
-                  v-for="(tag, tIndex) in item.tags"
-                  :key="tIndex"
-                  >{{ tag }}</text
-                >
-              </view>
-            </view>
-            <u-icon name="arrow-right" color="#D1D5DB" size="16"></u-icon>
-          </view>
-        </view>
-      </view> -->
-
-      <!-- Work Dynamics Section -->
-      <view class="card section-card">
-        <view class="section-header">
-          <text class="section-title">工作动态</text>
-          <!-- <text class="more-link" @click="navigateTo('/pages/dynamic/dynamic')"
-            >更多</text
-          > -->
-        </view>
-        <view class="news-list">
-          <view class="news-item" v-for="(item, index) in newsList" :key="index" @click="navigateToDetail(item)">
-            <image :src="item.coverUrl || '/static/appLogo.png'" class="news-image" mode="aspectFill"></image>
-            <view class="news-content">
-              <text class="news-title">{{ item.title }}</text>
-              <view class="news-meta">
-                <view class="news-tags">
-                  <text class="tag blue-tag" v-for="(tag, tIndex) in getTags(item.tags)" :key="tIndex">{{ tag }}</text>
-                </view>
-                <view class="news-date-container">
-                  <image src="/static/img/index/calendar.svg" class="calendar-icon"></image>
-                  <text class="news-date">{{
-                    formatDate(item.publishedAt)
-                  }}</text>
-                </view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- Follow Us Section -->
-      <view class="card section-card">
-        <view class="section-header">
-          <text class="section-title">友情链接</text>
-        </view>
-        <a class="studio-link-card"
-          href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzIxNTE0MjMzNw==#wechat_redirect"
-          style="text-decoration: none;">
-          <view class="studio-info">
-            <image src="/static/img/index/lilei.jpg" class="studio-logo"></image>
-            <view class="studio-text">
-              <text class="studio-name">李雷工作室</text>
-              <text class="studio-desc">汽车技术交流学习和专业课程建设</text>
-            </view>
-          </view>
-          <view class="follow-btn">
-            <text>关注</text>
-          </view>
-        </a>
-      </view>
-    </view>
-
-    <!-- Popup Menu (Overlay) -->
-    <view class="popup-overlay" v-if="showPopup" @click="togglePopup">
-      <view class="popup-content" @click.stop>
-        <view class="popup-btn full-width">
-          <text>“渝教工心”产教融合</text>
-        </view>
-        <view class="popup-grid">
-          <view class="popup-item" v-for="(item, index) in topicList" :key="index" @click="handlePublish(item)">
-            <image :src="item.coverUrl || '/static/appLogo.png'" class="popup-icon"></image>
-            <text>{{ item.name || item }}</text>
-          </view>
+      <!-- Empty State -->
+      <view class="empty-state-section" v-else>
+        <view class="card empty-card">
+          <image src="/static/img/index/home.webp" class="empty-icon" mode="widthFix"></image>
+          <text class="empty-text">暂无工作室</text>
         </view>
       </view>
     </view>
@@ -165,18 +96,48 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch, nextTick } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import uIcon from "uview-plus/components/u-icon/u-icon.vue";
-import { getStudioBanners, getStudioNews, getIeTopic } from "@/api/index.js";
-import { formatDate } from "@/utils/formatDate.js";
+import { getStudioBanners, getStudios } from "@/api/index.js";
+import IntroComponent from "../intro/intro.vue";
+import DynamicComponent from "../dynamic/dynamic.vue";
+import IntegraEduComponent from "../integraEdu/integraEdu.vue";
 
-const showPopup = ref(false);
-const statusBarHeight = ref(20);
-const bannerList = ref([]);
-const newsList = ref([]);
-const topicList = ref([]);
 const loading = ref(true);
+const bannerList = ref([]);
+const studioList = ref([]);
+const currentStudioId = ref(null);
+const currentTab = ref("dynamic"); // Default to dynamic
+
+const dynamicRef = ref(null);
+const integraEduRef = ref(null);
+
+const scrollTop = ref(0);
+const oldScrollTop = ref(0);
+
+const onScroll = (e) => {
+  oldScrollTop.value = e.detail.scrollTop;
+};
+
+const resetScroll = () => {
+  // Reset scroll to top
+  scrollTop.value = oldScrollTop.value;
+  nextTick(() => {
+    scrollTop.value = 0;
+  });
+};
+
+watch([currentTab, currentStudioId], () => {
+  resetScroll();
+});
+
+const handleScrollToLower = () => {
+  if (currentTab.value === 'dynamic' && dynamicRef.value) {
+    dynamicRef.value.loadMore();
+  } else if (currentTab.value === 'integraEdu' && integraEduRef.value) {
+    integraEduRef.value.loadMore();
+  }
+};
 
 const fetchBanners = async () => {
   try {
@@ -189,117 +150,45 @@ const fetchBanners = async () => {
   }
 };
 
-const fetchNews = async () => {
+const fetchStudiosData = async () => {
   try {
-    const res = await getStudioNews({ page: "1", size: "4" });
+    const res = await getStudios();
     if (res.code === 0 || res.code === 200) {
-      newsList.value = res.data.records;
+      studioList.value = res.data;
+      if (studioList.value.length > 0) {
+        currentStudioId.value = studioList.value[0].id;
+      }
     }
   } catch (error) {
-    console.error("Failed to fetch news:", error);
+    console.error("Failed to fetch studios:", error);
   }
-};
-
-const fetchTopicList = async () => {
-  try {
-    const res = await getIeTopic();
-    if (res.code === 0 || res.code === 200) {
-      topicList.value =
-        res.data.length > 0 ? res.data : ["需求发布", "成果发布", "知产发布"];
-    }
-  } catch (error) {
-    console.error("Failed to fetch topics:", error);
-  }
-};
-
-const getTags = (tagsStr) => {
-  if (!tagsStr) return [];
-  return tagsStr.split(",").slice(0, 2); // 取前两个
 };
 
 onLoad(() => {
-  const sysInfo = uni.getSystemInfoSync();
-  statusBarHeight.value = sysInfo.statusBarHeight || 20;
-
   // Set page title for H5
   uni.setNavigationBarTitle({
     title: '重工车辆工程学院成果转化创新工作室'
   });
 
-  // Fetch all initial data
   Promise.all([
     fetchBanners(),
-    fetchNews(),
-    fetchTopicList()
+    fetchStudiosData()
   ]).finally(() => {
     loading.value = false;
   });
 });
 
-const techList = ref([
-  { title: "锂电池防火材料", tags: ["科技成果", "技术入股"] },
-  {
-    title: "一种Li1+/Mg2+分离膜的研发",
-    tags: ["技术需求", "现有技术/产品改进"],
-  },
-  {
-    title: "脉波交错层式结构在整流变压器绕制...",
-    tags: ["技术需求", "新产品/技术研发"],
-  },
-  {
-    title: "高性能玄武岩混杂复合材料与结构关...",
-    tags: ["技术需求", "引进技术"],
-  },
-  {
-    title: "青柠檬及橄榄油深加工产品开发",
-    tags: ["技术需求", "现有技术/产品改进"],
-  },
-]);
-
-const navigateToDetail = (item) => {
-  uni.navigateTo({
-    url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${item.id}`,
-  });
-};
-
 const onBannerClick = (item) => {
   if (item && item.linkUrl) {
-    openUrl(item.linkUrl);
+    // #ifdef H5
+    window.location.href = item.linkUrl;
+    // #endif
+    // #ifndef H5
+    uni.navigateTo({
+      url: `/pages/webview/webview?url=${encodeURIComponent(item.linkUrl)}`,
+    });
+    // #endif
   }
-};
-
-const togglePopup = () => {
-  showPopup.value = !showPopup.value;
-};
-
-const handlePublish = (item) => {
-  showPopup.value = false;
-  const idValue = typeof item === "object" ? item.id : item;
-  const nameValue = typeof item === "object" ? item.name : item;
-  uni.navigateTo({
-    url: `/pages/integraEdu/integraEdu?id=${idValue}&name=${nameValue}`,
-  });
-};
-
-const navigateTo = (url) => {
-  uni.navigateTo({
-    url: url,
-  });
-};
-
-const openUrl = (url) => {
-  // #ifdef H5
-  window.location.href = url;
-  // #endif
-  // #ifndef H5
-  uni.navigateTo({
-    url: `/pages/webview/webview?url=${encodeURIComponent(url)}`,
-  });
-  // #endif
-};
-
-const getTagClass = (tag) => {
-  return "orange-tag";
 };
 </script>
 
@@ -310,12 +199,13 @@ const getTagClass = (tag) => {
 }
 
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-sizing: border-box;
-  /* Padding for safe areas if needed, but sticky header needs to be at top */
 }
 
-/* Global Background */
 .global-background {
   position: fixed;
   top: 0;
@@ -330,73 +220,61 @@ const getTagClass = (tag) => {
   pointer-events: none;
 }
 
-/* Custom Header */
+/* Header */
 .custom-header {
-  position: relative;
-  padding: 0 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 10rpx 20rpx;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.03);
 }
 
 .header-content {
-  height: 44px;
-  /* Standard nav bar height */
+  height: 88rpx;
   display: flex;
   align-items: center;
-}
-
-.header-left {
-  width: 80rpx;
-  /* Increased to accommodate larger icon */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .home-icon {
-  width: 64rpx;
-  /* Slightly adjusted to fit better in the header height */
-  height: auto;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
 }
 
 .header-title {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 30rpx;
-  font-weight: 800;
-  /* Extra bold for authority */
+  font-family: "DingTalk JinBuTi", sans-serif;
+  font-size: 32rpx;
+  font-weight: bold;
   color: #1a1a1a;
-  letter-spacing: 2rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
 }
 
-.header-right-spacer {
-  width: 60rpx;
-}
-
-/* Main Content Layout */
-.main-content {
-  position: relative;
-  z-index: 1;
+/* Main Body */
+.main-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
-  padding: 10rpx 20rpx 52rpx;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 /* Banner */
-.banner-wrapper {
-  width: 100%;
+.banner-section {
+  padding: 0;
 }
 
 .banner-swiper {
   height: 320rpx;
   width: 100%;
-  border-radius: 20rpx;
   overflow: hidden;
-
-  :deep(.uni-swiper-dot) {
-    width: 12rpx !important;
-    height: 12rpx !important;
-  }
+  box-shadow: 0 4rpx 15rpx rgba(0, 0, 0, 0.08);
 }
 
 .banner-image {
@@ -404,430 +282,257 @@ const getTagClass = (tag) => {
   height: 100%;
 }
 
-/* Cards Common Style */
-.card {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 20rpx;
-  padding: 20rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
-}
-
-/* Nav Card specific */
-.nav-card {
-  padding-bottom: 30rpx;
-}
-
-/* Action Button */
-.action-section {
-  padding: 0;
-  margin-bottom: 30rpx;
-}
-
-.action-btn {
-  background: linear-gradient(to right, #007aff, #00b4ff);
-  color: white;
-  padding: 16rpx 0 8rpx;
-  width: 100%;
-  border-radius: 12rpx;
+/* Split Container */
+.split-container {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 10rpx rgba(0, 122, 255, 0.3);
-  box-sizing: border-box;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.action-text {
-  font-size: 28rpx;
-  font-weight: normal;
-  font-family: "DingTalk JinBuTi", sans-serif;
+/* Sidebar */
+.sidebar {
+  width: 180rpx;
+  border-right: 1rpx solid rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.3);
 }
 
-.arrow-down {
-  font-size: 20rpx;
-  margin-top: 2rpx;
+.sidebar-scroll {
+  height: 100%;
 }
 
-/* Nav Grid */
-.nav-grid {
+.sidebar-title {
+  padding: 24rpx 20rpx;
+  font-size: 24rpx;
+  color: #999;
+  font-weight: bold;
   display: flex;
-  justify-content: space-around;
-  padding: 10rpx 0;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
   align-items: center;
 
-  text {
-    font-size: 26rpx;
-    color: #333;
-    font-family: "DingTalk JinBuTi", sans-serif;
+  .sidebar-title-icon {
+    width: 48rpx;
+    height: 48rpx !important;
   }
 }
 
-.studio-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30rpx !important;
-  margin-bottom: 10rpx;
-  background-color: #fff !important;
-  text-decoration: none;
-  color: inherit;
-}
-
-.studio-card:active {
-  background-color: #f9f9f9 !important;
-}
-
-.studio-info {
-  display: flex;
-  align-items: center;
-  flex: 1;
-}
-
-.studio-logo {
-  width: 90rpx;
-  height: 90rpx;
-  border-radius: 50%;
-  margin-right: 24rpx;
-  border: 1rpx solid #f0f0f0;
-}
-
-.studio-text {
+.sidebar-item {
+  padding: 30rpx 12rpx;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 12rpx;
+
+  &.active {
+    background: #fff;
+    box-shadow: inset 4rpx 0 0 #007aff;
+
+    .studio-name {
+      color: #007aff;
+      font-weight: 600;
+      transform: scale(1.05);
+    }
+
+    .studio-icon {
+      transform: translateY(-4rpx);
+    }
+  }
+}
+
+.studio-icon {
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+  background-color: #f8fafc;
+  transition: all 0.3s;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .studio-name {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #1a1a1a;
-  margin-bottom: 6rpx;
+  font-size: 22rpx;
+  line-height: 1.3;
+  color: #4B5563;
+  text-align: center;
+  word-break: break-all;
+  transition: all 0.3s;
 }
 
-.studio-desc {
-  font-size: 24rpx;
-  color: #888;
-}
-
-.follow-btn {
-  background-color: #07c160;
-  color: white;
-  padding: 10rpx 28rpx;
-  border-radius: 30rpx;
-  font-size: 24rpx;
-  font-weight: 500;
-  margin-left: 20rpx;
-}
-
-.studio-link-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10rpx 0;
-  text-decoration: none;
-  color: inherit;
-}
-
-.studio-link-card:active {
-  opacity: 0.7;
-}
-
-.icon-wrapper {
-  width: 96rpx;
-  height: 96rpx;
-  background-color: #f8fbff;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12rpx;
-}
-
-.nav-icon {
-  width: 72rpx;
-  /* Slightly smaller to fit background padding */
-  height: 72rpx;
-  position: relative;
-  z-index: 2;
-}
-
-/* Section Header */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 20rpx;
-  /* Removed border-bottom per request "remove color in front of text" if that's interpreted as the line,
-     or if it meant a marker. I'll keep it clean. */
-}
-
-.section-title {
-  font-family: "DingTalk JinBuTi", sans-serif;
-  font-size: 34rpx;
-  font-weight: bold;
-  font-style: italic;
-  position: relative;
-  padding-left: 20rpx;
-  /* Space for the vertical line */
-}
-
-/* Vertical Gradient Line */
-.section-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8rpx;
-  height: 32rpx;
-  background: linear-gradient(to bottom,
-      #4facfe,
-      #00f2fe);
-  /* Light Blue Gradient */
-  border-radius: 4rpx;
-}
-
-.more-link {
-  color: #999;
-  font-size: 28rpx;
-}
-
-/* Tech List */
-.tech-item {
-  padding: 30rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.tech-item:last-child {
-  border-bottom: none;
-}
-
-.tech-info {
+/* Main Right Content */
+.content-main {
   flex: 1;
-  margin-right: 20rpx;
-}
-
-.tech-title-wrap {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.tech-status-dot {
-  width: 12rpx;
-  height: 12rpx;
-  border-radius: 50%;
-  margin-right: 16rpx;
-  flex-shrink: 0;
-}
-
-.status-blue {
-  background-color: #3b82f6;
-  box-shadow: 0 0 8rpx rgba(59, 130, 246, 0.4);
-}
-
-.status-orange {
-  background-color: #f59e0b;
-  box-shadow: 0 0 8rpx rgba(245, 158, 11, 0.4);
-}
-
-.tech-title {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #1f2937;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tech-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  padding-left: 28rpx;
-}
-
-/* News List */
-.news-item {
-  display: flex;
-  /* Changed to row for better card look inside list? Or keep as column? Previous was column. */
-  /* User didn't specify changing news item layout, but said "overall layout uses flex elastic layout".
-     I'll keep specific item layout similar but cleaner. */
-  flex-direction: column;
-  margin-bottom: 30rpx;
-  border-radius: 10rpx;
-  overflow: hidden;
-  background-color: #fff;
-  /* box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05); Already in a card, so maybe remove item shadow or keep it subtle? */
-  border: 1rpx solid #eee;
-  /* Light border since it's inside a white card */
-}
-
-.news-item:last-child {
-  margin-bottom: 0;
-}
-
-.news-image {
-  width: 100%;
-  height: 300rpx;
-  background-color: #eee;
-}
-
-.news-content {
-  padding: 20rpx;
-}
-
-.news-title {
-  font-size: 32rpx;
-  display: block;
-  font-weight: bold;
-  margin-bottom: 15rpx;
-}
-
-.news-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.news-tags {
-  display: flex;
-  gap: 12rpx;
-}
-
-.news-date-container {
-  display: flex;
-  align-items: center;
-}
-
-.calendar-icon {
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-}
-
-.news-date {
-  color: #999;
-  font-size: 26rpx;
-}
-
-/* Popup Styles */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup-content {
-  background-color: white;
-  width: 90%;
-  border-radius: 20rpx;
-  padding: 20rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.2);
-}
-
-.popup-btn {
-  border: 2rpx solid #007aff;
-  border-radius: 10rpx;
-  padding: 15rpx;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  color: #007aff;
-  font-weight: bold;
-  margin-bottom: 30rpx;
-  background-color: #fff;
+  overflow: hidden;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url("/static/img/bgImg.png");
+  background-size: cover;
+  background-position: center;
+  border-top-left-radius: 30rpx;
+  backdrop-filter: blur(5px);
+  position: relative;
 }
 
-.arrow-up {
-  font-size: 24rpx;
-  color: #007aff;
-  margin-top: 5rpx;
-}
-
-.popup-grid {
+.tab-header {
   display: flex;
   justify-content: space-around;
+  padding: 30rpx 10rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  background: #fff;
 }
 
-.popup-item {
+.tab-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 8rpx;
+  transition: all 0.3s;
 
   text {
-    color: #333;
-    font-size: 28rpx;
+    font-size: 22rpx;
+    color: #999;
+  }
+
+  &.active {
+    text {
+      color: #007aff;
+      font-weight: bold;
+    }
+
+    .tab-icon-wrap {
+      background: #eef7ff;
+      transform: scale(1.1);
+    }
   }
 }
 
-.popup-icon {
-  width: 90rpx;
-  height: 90rpx;
-  margin-bottom: 10rpx;
-  border-radius: 50%;
+.tab-icon-wrap {
+  width: 70rpx;
+  height: 70rpx;
+  border-radius: 16rpx;
+  background: #f8fbff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
 }
 
-/* Tags */
-.tag {
-  font-size: 24rpx;
-  padding: 6rpx 24rpx;
-  border-radius: 30rpx;
-  display: inline-block;
-  margin-right: 0;
-  /* Handled by gap */
+.tab-icon {
+  width: 50rpx;
+  height: 50rpx;
 }
 
-.blue-tag {
-  background-color: rgba(0, 122, 255, 0.08);
-  color: #007aff;
-  border: 1rpx solid #007aff;
+/* Component Area */
+.component-wrapper {
+  flex: 1;
+  height: 0;
+  /* Force flex to calculate height for internal scrolling */
+  overflow: hidden;
+  background: transparent;
 }
 
-.blue-outline-tag {
-  background-color: #fff;
-  border: 1px solid #007aff;
-  color: #007aff;
+.component-scroll {
+  height: 100%;
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+    height: 0 !important;
+    -webkit-appearance: none;
+    background: transparent;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
-.orange-tag {
-  background-color: rgba(255, 149, 0, 0.08);
-  color: #ff9500;
-  border: 1rpx solid #ff9500;
+.scroll-bottom-spacer {
+  height: 40rpx;
+  width: 100%;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.orange-outline-tag {
-  color: #ffb400;
-  border: 1px solid #ffb400;
-  background-color: #fff;
-}
-
+/* Loading State */
 .loading-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Empty State */
+.empty-state-section {
+  flex: 1;
+  padding: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-card {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 320rpx;
-  gap: 20rpx;
+  padding: 100rpx 0;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 30rpx;
+}
 
-  .loading-text {
-    font-size: 28rpx;
-    color: #9CA3AF;
-  }
+.empty-icon {
+  width: 120rpx;
+  margin-bottom: 20rpx;
+  filter: grayscale(1) opacity(0.2);
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  font-family: "DingTalk JinBuTi", sans-serif;
+}
+
+/* Deep component style overrides to make them fit in split layout */
+:deep(.container) {
+  min-height: auto !important;
+  padding: 0 !important;
+  /* Remove fixed padding here */
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+:deep(.global-background) {
+  display: none !important;
+}
+
+:deep(.card),
+:deep(.news-list),
+:deep(.article-list),
+:deep(.info-card),
+:deep(.intro-card),
+:deep(.contact-section) {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(5px) !important;
+  padding: 20rpx !important;
+  margin: 15rpx !important;
+  border-radius: 20rpx !important;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03) !important;
+}
+
+:deep(.topic-tabs-container) {
+  background: transparent !important;
+  padding: 10rpx 20rpx !important;
+}
+
+:deep(.search-section) {
+  padding: 10rpx !important;
+  background: transparent !important;
 }
 </style>

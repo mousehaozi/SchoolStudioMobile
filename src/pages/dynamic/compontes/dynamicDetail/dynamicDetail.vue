@@ -117,7 +117,7 @@ const giveLikeFun = async () => {
 	console.log(detailData.value.id, "点赞");
 	const res = await studioNewsLike(detailData.value.id);
 	if (res.code == 0) {
-		await fetchDetail(articleId.value);
+		await fetchDetail(studioId.value, articleId.value);
 
 		if (detailData.value.liked) {
 			uni.showToast({
@@ -149,6 +149,7 @@ const processRichText = (html) => {
 };
 
 const articleId = ref("");
+const studioId = ref("");
 const showGuide = ref(false);
 
 const handleShare = () => {
@@ -158,16 +159,17 @@ const handleShare = () => {
 onLoad((options) => {
 	if (options.data) {
 		articleId.value = options.data;
-		fetchDetail(options.data);
+		studioId.value = options.studioId || "";
+		fetchDetail(studioId.value, options.data);
 	}
 });
 
-const fetchDetail = async (id) => {
+const fetchDetail = async (sId, id) => {
 	uni.showLoading({
 		title: "加载中...",
 	});
 	try {
-		const res = await getStudioNewsDetail(id);
+		const res = await getStudioNewsDetail(sId, id);
 		if (res.code === 200 || res.code === 0) {
 			detailData.value = res.data;
 			// 更新分享图片

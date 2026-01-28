@@ -8,7 +8,7 @@
         <view class="logo-wrapper">
           <image src="/static/appLogo.png" mode="aspectFit" class="logo"></image>
         </view>
-        <text class="app-name">重庆工业职业技术大学1</text>
+        <text class="app-name">重庆工业职业技术大学</text>
         <text class="app-slogan">成果转移转化创新工作室</text>
       </view>
 

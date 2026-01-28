@@ -35,6 +35,11 @@
 							<text class="location-text">{{ item.location }}</text>
 						</view>
 
+						<view class="news-time" v-if="item.publishedAt">
+							<u-icon name="clock" color="#999" size="12"></u-icon>
+							<text class="time-text">{{ formatDate(item.publishedAt, 'YYYY-MM-DD HH:mm') }}</text>
+						</view>
+
 						<view class="tabs">
 							<view class="news-meta">
 								<view class="news-tags">
@@ -45,7 +50,7 @@
 
 							<view class="article-views">
 								<u-icon name="eye" size="12" color="#999"></u-icon>
-								<text class="view-count">{{ item.viewCount || 0 }}次浏览</text>
+								<text class="view-count">{{ item.viewCount || 0 }}</text>
 							</view>
 						</view>
 					</view>
@@ -55,7 +60,7 @@
 			<!-- Loading / No More Data Footer -->
 			<view class="no-more">
 				<u-loadmore :status="noMore ? 'nomore' : (isLoading ? 'loading' : 'loadmore')"
-					:loading-text="'正在加载中...'" :nomore-text="'没有更多了'" iconSize="16" fontSize="14" />
+					:loading-text="'正在加载中...'" :nomore-text="'没有更多了...'" iconSize="16" fontSize="12" color="#999" />
 			</view>
 		</template>
 	</view>
@@ -85,15 +90,28 @@ const noMore = ref(false);
 const isLoading = ref(false);
 const initialLoading = ref(true);
 
-onShow(() => {
+import { onMounted } from 'vue';
+const props = defineProps({
+	studioId: [String, Number]
+});
+
+watch(() => props.studioId, () => {
 	refreshData();
 });
 
-onReachBottom(() => {
+onMounted(() => {
+	refreshData();
+});
+
+const loadMore = () => {
 	if (!noMore.value && !isLoading.value) {
 		page.value++;
 		fetchNews();
 	}
+};
+
+defineExpose({
+	loadMore
 });
 
 watch(keyword, () => {
@@ -108,10 +126,10 @@ const refreshData = () => {
 };
 
 const fetchNews = async () => {
-	if (isLoading.value) return;
+	if (isLoading.value || !props.studioId) return;
 	isLoading.value = true;
 	try {
-		const res = await getStudioNews({
+		const res = await getStudioNews(props.studioId, {
 			page: page.value,
 			size: size.value,
 			keyword: keyword.value
@@ -138,7 +156,7 @@ const getTags = (tagsStr) => {
 
 const goToDetail = (item) => {
 	uni.navigateTo({
-		url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${item.id}`
+		url: `/pages/dynamic/compontes/dynamicDetail/dynamicDetail?data=${item.id}&studioId=${item.studioId}`
 	});
 };
 </script>
@@ -150,10 +168,8 @@ const goToDetail = (item) => {
 }
 
 .container {
-	min-height: 100vh;
-	/* background-color: #F5F7FA; Removed to show background image */
-	padding: 30rpx;
-	padding-bottom: 60rpx;
+	padding: 20rpx;
+	padding-bottom: 80rpx;
 	position: relative;
 }
 
@@ -180,22 +196,23 @@ const goToDetail = (item) => {
 	z-index: 1;
 }
 
-.news-list {
-	padding: 30rpx;
-	background-color: #fff;
-	border-radius: 20rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+.search-section {
+	display: none;
 }
 
-/* Search Section */
-.search-section {
-	margin-bottom: 30rpx;
+.news-list {
+	padding: 10rpx;
+	background-color: transparent;
 }
 
 .search-wrapper {
 	position: relative;
 	display: flex;
 	align-items: center;
+	border: 2rpx solid #eee;
+	border-radius: 40rpx;
+	width: 70vw;
+	margin: 8rpx;
 }
 
 .search-icon-manual {
@@ -215,14 +232,14 @@ const goToDetail = (item) => {
 /* News List Styles */
 .news-item {
 	display: flex;
-	margin-bottom: 30rpx;
-	border-radius: 20rpx;
+	margin-bottom: 20rpx;
+	border-radius: 16rpx;
 	overflow: hidden;
-	background-color: #fff;
-	border: 1rpx solid rgba(0, 0, 0, 0.05);
+	background-color: rgba(255, 255, 255, 0.8);
+	border: 1rpx solid rgba(0, 0, 0, 0.03);
 	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
 	animation: fadeIn 0.6s ease-out;
-	padding: 20rpx;
+	padding: 16rpx;
 }
 
 .news-item:last-child {
@@ -231,10 +248,10 @@ const goToDetail = (item) => {
 
 .news-image-wrap {
 	position: relative;
-	width: 200rpx;
-	height: 200rpx;
+	width: 160rpx;
+	height: 160rpx;
 	flex-shrink: 0;
-	border-radius: 12rpx;
+	border-radius: 10rpx;
 	overflow: hidden;
 	background-color: #f3f4f6;
 
@@ -284,7 +301,7 @@ const goToDetail = (item) => {
 	font-weight: bold;
 	color: #1F2937;
 	line-height: 1.4;
-	margin-bottom: 12rpx;
+	margin-bottom: 4rpx;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
@@ -293,7 +310,7 @@ const goToDetail = (item) => {
 }
 
 .news-location {
-	display: flex;
+	display: none;
 	align-items: center;
 	margin-bottom: 10rpx;
 
@@ -305,6 +322,23 @@ const goToDetail = (item) => {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		max-width: 320rpx;
+	}
+}
+
+.news-time {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 12rpx;
+	height: 32rpx;
+	/* Set a fixed height to help centering */
+
+	.time-text {
+		font-size: 22rpx;
+		color: #999;
+		margin-left: 8rpx;
+		line-height: 1;
+		/* Match line-height to font-size for better vertical alignment */
 	}
 }
 
@@ -358,12 +392,12 @@ const goToDetail = (item) => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 60rpx 0;
+	padding: 30rpx 0;
 }
 
 .no-more-text {
 	font-size: 24rpx;
-	color: #9CA3AF;
+	color: #999;
 	padding: 0 20rpx;
 	background-color: transparent;
 	z-index: 1;

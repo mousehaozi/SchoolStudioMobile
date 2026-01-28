@@ -11,11 +11,11 @@ export const getStudioBanners = () => {
 };
 
 /**
- * 获取工作动态 (仅已发布且启用)
+ * 获取具体工作室下的工作动态 (仅已发布且启用)
  */
-export const getStudioNews = (params) => {
+export const getStudioNews = (studioId, params) => {
     return request({
-        url: "/studio-news",
+        url: `/studios/${studioId}/news`,
         method: "GET",
         data: params
     });
@@ -54,11 +54,11 @@ export const getIeTopic = () => {
     });
 };
 /**
- * 获取工作动态详情
+ * 获取具体工作室下的工作动态详情
  */
-export const getStudioNewsDetail = (id) => {
+export const getStudioNewsDetail = (studioId, id) => {
     return request({
-        url: `/studio-news/${id}`,
+        url: `/studios/${studioId}/news/${id}`,
         method: "GET",
     });
 };
@@ -83,5 +83,33 @@ export const articleLike = (articleId) => {
     });
 };
 
+/**
+ * 获取工作室列表
+ */
+export const getStudios = () => {
+    return request({
+        url: "/studios",
+        method: "GET",
+    });
+};
 
+/**
+ * 获取指定工作室简介
+ */
+export const getStudioIntro = (studioId, id) => {
+    return request({
+        url: `/studios/${studioId}/news/${id}`,
+        method: "GET",
+    });
+};
+
+/**
+ * 获取指定工作室简介
+ */
+export const getStudioProfileById = (studioId) => {
+    return request({
+        url: `/studios/${studioId}/profile`,
+        method: "GET",
+    });
+};
 

@@ -7,15 +7,6 @@
       <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
     </view>
     <view class="content-wrapper" v-else>
-      <!-- Header Title -->
-      <view class="header-section">
-        <view class="title-wrapper">
-          <view class="deco-dot"></view>
-          <text class="page-title">{{ profile.title || '工作室介绍' }}</text>
-          <view class="deco-dot"></view>
-        </view>
-        <text class="subtitle">Innovation & Transformation</text>
-      </view>
       <!-- Main Intro Text -->
       <view class="card intro-card">
         <view class="card-header">
@@ -30,14 +21,41 @@
 
       <!-- Info Sections -->
       <view class="card info-card">
+        <view class="info-item leader-row-item">
+          <view class="leader-main-content">
+            <view class="label-row">
+              <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
+              <text class="info-label">工作室领衔人</text>
+            </view>
+            <text class="info-content highlight">{{ profile.leaderName || '暂无' }}</text>
+            <text class="info-desc">{{ profile.leaderIntro || '暂无' }}</text>
+          </view>
+          <view class="follow-btn mini" v-if="profile.wechatUrl" @click="goToWechat(profile.wechatUrl)">
+            <text>关注</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <!-- Contact Us (Moved here) -->
         <view class="info-item">
           <view class="label-row">
-            <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
-            <text class="info-label">工作室领衔人</text>
+            <u-icon name="phone-fill" color="#3B82F6" size="18"></u-icon>
+            <text class="info-label">联系我们</text>
           </view>
-          <text class="info-content highlight">{{ profile.leaderName || '暂无' }}</text>
-          <text class="info-desc">{{ profile.leaderIntro || '暂无' }}</text>
+          <view class="contact-grid-modern" v-if="profile.contactUsParsed && profile.contactUsParsed.length > 0">
+            <view class="contact-card-mini" v-for="(item, index) in profile.contactUsParsed" :key="index"
+              @click="makeCall(item.phone)">
+              <view class="contact-main-info">
+                <text class="name">{{ item.name }}</text>
+                <text class="role">{{ item.distraction || '业务联系人' }}</text>
+              </view>
+              <u-icon name="phone-fill" color="#3B82F6" size="16"></u-icon>
+            </view>
+          </view>
+          <text class="info-content" v-else>暂无联系方式</text>
         </view>
+
 
         <view class="divider"></view>
 
@@ -65,54 +83,22 @@
           </view>
           <text class="info-content">{{ profile.coreFunctions || '暂无' }}</text>
         </view>
+
       </view>
 
-      <!-- Contact Grid -->
-      <view class="contact-section">
-        <text class="section-header" v-if="profile.contactUsParsed.length != 0">联系我们</text>
-        <view class="contact-grid">
-          <view class="contact-box" v-for="(item, index) in profile.contactUsParsed" :key="index"
-            @click="makeCall(item.phone)">
-            <view class="contact-info">
-              <text class="contact-name">{{ item.name }}</text>
-              <text class="contact-role">{{ item.distraction || '业务联系人' }}</text>
-            </view>
-            <view class="call-btn">
-              <u-icon name="phone-fill" color="#fff" size="14"></u-icon>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- Follow Us Section -->
-      <view class="card section-card follow-section">
-        <view class="section-header">
-          <text class="section-title">友情链接</text>
-        </view>
-        <a class="studio-link-card"
-          href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzIxNTE0MjMzNw==#wechat_redirect"
-          style="text-decoration: none;">
-          <view class="studio-info">
-            <image src="/static/img/index/lilei.jpg" class="studio-logo"></image>
-            <view class="studio-text">
-              <text class="studio-name">李雷工作室</text>
-              <text class="studio-desc">汽车技术交流学习和专业课程建设</text>
-            </view>
-          </view>
-          <view class="follow-btn">
-            <text>关注</text>
-          </view>
-        </a>
-      </view>
 
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { ref, onMounted, watch } from "vue";
+import { getStudioProfileById } from "@/api/index.js";
 import { getStudioProfile } from "@/api/intro.js";
+
+const props = defineProps({
+  studioId: [String, Number]
+});
 
 const profile = ref({
   title: "",
@@ -123,6 +109,7 @@ const profile = ref({
   orgStructureParsed: [],
   coreFunctions: "",
   contactUsParsed: [],
+  wechatUrl: ""
 });
 const loading = ref(true);
 
@@ -132,34 +119,95 @@ const processRichText = (html) => {
   return html.replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;"');
 };
 
+
 const fetchProfile = async () => {
+  loading.value = true;
   try {
-    const res = await getStudioProfile();
+    let res;
+    if (props.studioId) {
+      res = await getStudioProfileById(props.studioId);
+    } else {
+      res = await getStudioProfile();
+    }
+
     if (res.code === 0 || res.code === 200) {
-      const data = res.data || {};
+      let data = res.data || {};
+      // Handle the case where data might be an array (as per schema) or object (as per example)
+      if (Array.isArray(data)) {
+        data = data.length > 0 ? data[0] : {};
+      }
+
       if (data.contentHtml) {
         data.contentHtml = processRichText(data.contentHtml);
       }
 
+      // Initialize with default empty arrays to prevent template errors
+      data.orgStructureParsed = data.orgStructureParsed || [];
+      data.contactUsParsed = data.contactUsParsed || [];
+
       // Parse JSON strings
       try {
-        if (data.orgStructure) {
+        if (data.orgStructure && typeof data.orgStructure === 'string') {
           data.orgStructureParsed = JSON.parse(data.orgStructure);
+        } else if (Array.isArray(data.orgStructure)) {
+          data.orgStructureParsed = data.orgStructure;
         }
-        if (data.contactUs) {
-          data.contactUsParsed = JSON.parse(data.contactUs);
+
+        let contactInfo = null;
+        if (data.contactUs && typeof data.contactUs === 'string') {
+          contactInfo = JSON.parse(data.contactUs);
+        } else {
+          contactInfo = data.contactUs;
+        }
+
+        if (contactInfo) {
+          if (Array.isArray(contactInfo)) {
+            data.contactUsParsed = contactInfo;
+            // Search inside the array for a wechatUrl
+            const foundWechat = contactInfo.find(c => c.wechatUrl)?.wechatUrl;
+            if (foundWechat) {
+              data.wechatUrl = foundWechat;
+            }
+          } else if (typeof contactInfo === 'object') {
+            // If contactUs is an object, it might contain contacts array and wechatUrl
+            data.contactUsParsed = contactInfo.contacts || [];
+            data.wechatUrl = contactInfo.wechatUrl || data.wechatUrl || "";
+            // Also check inside contacts array if present
+            if (Array.isArray(contactInfo.contacts)) {
+              const foundWechat = contactInfo.contacts.find(c => c.wechatUrl)?.wechatUrl;
+              if (foundWechat) data.wechatUrl = foundWechat;
+            }
+          }
         }
       } catch (e) {
         console.error("Parse JSON failed:", e);
       }
-      profile.value = data;
+
+      // Merge with default profile structure
+      profile.value = {
+        title: "",
+        contentHtml: "",
+        coverUrl: "",
+        leaderName: "",
+        leaderIntro: "",
+        orgStructureParsed: [],
+        coreFunctions: "",
+        contactUsParsed: [],
+        wechatUrl: "",
+        ...data
+      };
     }
   } finally {
     loading.value = false;
   }
 };
 
-onLoad(() => {
+
+watch(() => props.studioId, () => {
+  fetchProfile();
+});
+
+onMounted(() => {
   fetchProfile();
 });
 
@@ -167,6 +215,18 @@ const makeCall = (phoneNumber) => {
   uni.makePhoneCall({
     phoneNumber: phoneNumber
   });
+};
+
+const goToWechat = (url) => {
+  if (!url) return;
+  // #ifdef H5
+  window.location.href = url;
+  // #endif
+  // #ifndef H5
+  uni.navigateTo({
+    url: `/pages/webview/webview?url=${encodeURIComponent(url)}`
+  });
+  // #endif
 };
 </script>
 
@@ -177,12 +237,14 @@ const makeCall = (phoneNumber) => {
 }
 
 .container {
-  min-height: 100vh;
-  /* background-color: #F5F7FA; Removed to show background image */
-  padding: 2rpx 30rpx 30rpx;
-  padding-bottom: 60rpx;
+  display: block;
+  width: 100%;
+  height: auto !important;
+  min-height: min-content;
+  padding: 10rpx 20rpx 300rpx !important;
+  /* Extremely high padding for safety */
   position: relative;
-  /* Ensure z-index works */
+  overflow: visible !important;
 }
 
 /* Global Background */
@@ -396,32 +458,42 @@ const makeCall = (phoneNumber) => {
   background-color: #F9FAFB;
 }
 
-.contact-info {
+.contact-grid-modern {
   display: flex;
   flex-direction: column;
+  gap: 16rpx;
+  padding-left: 48rpx;
 }
 
-.contact-name {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #1F2937;
-  margin-bottom: 4rpx;
-}
-
-.contact-role {
-  font-size: 22rpx;
-  color: #9CA3AF;
-}
-
-.call-btn {
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #60A5FA, #3B82F6);
+.contact-card-mini {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(59, 130, 246, 0.3);
+  padding: 16rpx 24rpx;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 12rpx;
+  transition: all 0.2s;
+
+  .contact-main-info {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      font-size: 28rpx;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .role {
+      font-size: 20rpx;
+      color: #9CA3AF;
+    }
+  }
+
+  &:active {
+    background: rgba(59, 130, 246, 0.1);
+    transform: scale(0.98);
+  }
 }
 
 @keyframes fadeIn {
@@ -436,18 +508,24 @@ const makeCall = (phoneNumber) => {
   }
 }
 
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 320rpx;
-  gap: 20rpx;
+/* Leader Row with Follow Button */
+.leader-row-item {
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
 
-  .loading-text {
-    font-size: 28rpx;
-    color: #9CA3AF;
+  .leader-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
+}
+
+.follow-btn.mini {
+  padding: 8rpx 24rpx;
+  border-radius: 30rpx;
+  margin-right: 10rpx;
+  flex-shrink: 0;
 }
 
 /* Studio Link Card Styles from Index */

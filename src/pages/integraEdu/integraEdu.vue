@@ -3,13 +3,16 @@
     <!-- Global Background -->
     <view class="global-background"></view>
 
-    <!-- Topic Tabs (Removed sliding effect) -->
-    <view class="topic-tabs-container">
-      <view v-for="(topic, index) in topicList" :key="index" class="topic-tab"
-        :class="{ active: currentTopicId === topic }" @click="switchTopic(topic)">
-        <text class="topic-text">{{ topic.name }}</text>
+    <!-- Topic Tabs (Horizontal Scroll with Auto-view) -->
+    <scroll-view class="topic-tabs-container" scroll-x="true" show-scrollbar="false" :scroll-into-view="tabScrollInto"
+      scroll-with-animation>
+      <view class="tabs-inner">
+        <view v-for="(topic, index) in topicList" :key="index" :id="'tab_' + index" class="topic-tab"
+          :class="{ active: currentTopicId === topic }" @click="switchTopic(topic, index)">
+          <text class="topic-text">{{ topic.name }}</text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
 
     <!-- Loading State -->
     <view v-if="initialLoading" class="loading-state">
@@ -17,12 +20,14 @@
     </view>
 
     <template v-else>
-      <!-- Article List -->
-      <scroll-view class="article-list" scroll-y @scrolltolower="loadMore">
+      <!-- Article List (Now standard view to use parent scroll) -->
+      <view class="article-list">
         <view v-for="(item, index) in articleList" :key="index" class="article-card" @click="goToDetail(item)">
+          <!-- Title Section -->
           <text class="article-title">{{ item.title }}</text>
 
-          <view class="article-body">
+          <!-- Middle Body Section -->
+          <view class="article-main">
             <image v-if="item.coverUrl" :src="item.coverUrl" mode="aspectFill" class="article-cover"></image>
             <view class="article-content">
               <view class="article-desc">
@@ -31,15 +36,19 @@
             </view>
           </view>
 
-          <view class="article-footer">
-            <view class="article-tags">
-              <text v-for="(tag, tIndex) in getTags(item.tags)" :key="tIndex" class="tag">{{ tag }}</text>
+          <!-- Bottom Footer Row -->
+          <view class="article-footer-new">
+            <view class="tags-area">
+              <text v-for="(tag, tIndex) in getTags(item.tags)" :key="tIndex" class="mini-tag">{{ tag }}</text>
             </view>
-            <view class="footer-right">
-              <text class="article-time">{{ formatDate(item.publishedAt, "YYYY-MM-DD HH:mm") }}</text>
-              <view class="article-views">
-                <u-icon name="eye" size="12" color="#bbb"></u-icon>
-                <text class="view-count">{{ item.viewCount || 0 }}次浏览</text>
+            <view class="meta-area">
+              <view class="meta-box">
+                <u-icon name="clock" size="12" color="#999"></u-icon>
+                <text class="value">{{ formatDate(item.publishedAt, "YYYY-MM-DD") }}</text>
+              </view>
+              <view class="meta-box">
+                <u-icon name="eye" size="12" color="#999"></u-icon>
+                <text class="value">{{ item.viewCount || 0 }}</text>
               </view>
             </view>
           </view>
@@ -48,7 +57,7 @@
           <u-loadmore :status="noMore ? 'nomore' : (loading ? 'loading' : 'loadmore')" :loading-text="'正在加载中...'"
             :nomore-text="'没有更多了'" iconSize="16" fontSize="14" />
         </view>
-      </scroll-view>
+      </view>
     </template>
   </view>
 </template>
@@ -71,11 +80,26 @@ const size = ref(10);
 const loading = ref(false);
 const noMore = ref(false);
 const initialLoading = ref(true);
+const tabScrollInto = ref("");
 
-onLoad((options) => {
-  if (options.id) {
-    currentTopicId.value = options.id;
-    currentTopicName.value = options.name || '';
+import { onMounted } from 'vue';
+
+const props = defineProps({
+  id: [String, Number],
+  name: String,
+  studioId: [String, Number]
+});
+
+import { watch } from 'vue';
+
+watch(() => props.studioId, () => {
+  fetchTopics();
+});
+
+onMounted(() => {
+  if (props.id) {
+    currentTopicId.value = props.id;
+    currentTopicName.value = props.name || '';
   }
   fetchTopics();
 });
@@ -102,6 +126,7 @@ const fetchTopics = async () => {
       if ((!currentTopicId.value || typeof currentTopicId.value !== 'object') && topicList.value.length > 0) {
         currentTopicId.value = topicList.value[0];
         currentTopicName.value = topicList.value[0].name;
+        tabScrollInto.value = 'tab_0';
       }
 
       fetchArticles();
@@ -142,10 +167,11 @@ const fetchArticles = async (isMore = false) => {
   }
 };
 
-const switchTopic = (topic) => {
+const switchTopic = (topic, index) => {
   if (currentTopicId.value === topic) return;
   currentTopicId.value = topic;
-  currentTopicName.value = topic;
+  currentTopicName.value = topic.name;
+  tabScrollInto.value = 'tab_' + index;
   page.value = 1;
   noMore.value = false;
   articleList.value = [];
@@ -157,6 +183,10 @@ const loadMore = () => {
   page.value++;
   fetchArticles(true);
 };
+
+defineExpose({
+  loadMore
+});
 
 const goBack = () => {
   uni.navigateBack();
@@ -191,10 +221,8 @@ const processRichText = (html) => {
 
 <style lang="scss" scoped>
 .container {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f8fbff;
 }
 
 .global-background {
@@ -215,34 +243,37 @@ const processRichText = (html) => {
 }
 
 .topic-tabs-container {
-  display: flex;
-  flex-wrap: wrap;
-  /* 允许换行，不滑动 */
-  padding: 20rpx 28rpx;
+  width: 100%;
+  white-space: nowrap;
   position: relative;
   z-index: 10;
-  background-color: #fff;
+  background-color: transparent;
+}
+
+.tabs-inner {
+  display: flex;
+  padding: 10rpx 10rpx;
 }
 
 .topic-tab {
   display: flex;
   align-items: center;
-  padding: 10rpx 24rpx;
-  margin-bottom: 20rpx;
-  position: relative;
+  padding: 6rpx 12rpx;
+  margin-right: 6rpx;
+  flex-shrink: 0;
+  transition: all 0.3s;
 
   .topic-text {
-    font-size: 28rpx;
+    font-size: 24rpx;
     color: #666;
-    transition: all 0.3s;
   }
 
   &.active {
     background: rgba(59, 130, 246, 0.1);
-    border-radius: 40rpx;
+    border-radius: 30rpx;
 
     .topic-text {
-      color: #000;
+      color: #3b82f6;
       font-weight: 500;
     }
   }
@@ -251,10 +282,10 @@ const processRichText = (html) => {
 
 .article-list {
   flex: 1;
-  padding: 0 30rpx 30rpx;
+  padding: 0 10rpx 20rpx;
   box-sizing: border-box;
   overflow: hidden;
-  margin-top: 32rpx;
+  margin-top: 20rpx;
 }
 
 .article-card {
@@ -262,34 +293,36 @@ const processRichText = (html) => {
   flex-direction: column;
   background-color: #ffffff;
   border-radius: 20rpx;
-  padding: 32rpx 24rpx;
+  padding: 20rpx 24rpx 32rpx;
   margin-bottom: 30rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.02);
 
   .article-title {
-    font-size: 34rpx;
+    font-size: 32rpx;
     font-weight: bold;
     color: #1a1a1a;
-    line-height: 1.5;
-    margin-bottom: 12rpx;
+    line-height: 1.4;
+    margin-bottom: 20rpx;
     display: block;
   }
 
-  .article-body {
+  /* Main Body Layout */
+  .article-main {
     display: flex;
     gap: 20rpx;
-    margin-bottom: 20rpx;
+    margin-bottom: 24rpx;
     align-items: flex-start;
   }
 
   .article-cover {
     width: 200rpx;
-    height: 150rpx;
+    height: 140rpx;
     border-radius: 12rpx;
     flex-shrink: 0;
     background-color: #f7f8fa;
     display: block;
     object-fit: cover;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   }
 
   .article-content {
@@ -297,9 +330,9 @@ const processRichText = (html) => {
     min-width: 0;
 
     .article-desc {
-      font-size: 28rpx;
+      font-size: 26rpx;
       color: #666;
-      line-height: 1.6;
+      line-height: 1.5;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
@@ -310,57 +343,53 @@ const processRichText = (html) => {
       :deep(*) {
         display: inline !important;
         font-weight: normal !important;
-        font-size: 28rpx !important;
+        font-size: 26rpx !important;
+        color: #666 !important;
         background: none !important;
         margin: 0 !important;
         padding: 0 !important;
-        z-index: 1;
       }
     }
   }
 
-  .article-footer {
+  /* Footer Layout */
+  .article-footer-new {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 12rpx;
-    border-top: 1rpx solid #f9f9f9;
+    padding-top: 20rpx;
+    border-top: 1rpx solid rgba(0, 0, 0, 0.03);
 
-    .article-tags {
+    .tags-area {
       display: flex;
       flex-wrap: wrap;
       gap: 12rpx;
       flex: 1;
-      margin-right: 20rpx;
 
-      .tag {
+      .mini-tag {
         font-size: 20rpx;
         color: #3b82f6;
-        background: #eff6ff;
-        padding: 4rpx 14rpx;
-        border-radius: 8rpx;
+        background: rgba(59, 130, 246, 0.08);
+        padding: 4rpx 16rpx;
+        border-radius: 6rpx;
+        font-weight: 500;
       }
     }
 
-    .footer-right {
+    .meta-area {
       display: flex;
       align-items: center;
-      gap: 16rpx;
-      flex-shrink: 0;
+      gap: 20rpx;
+      margin-left: 20rpx;
 
-      .article-time {
-        font-size: 22rpx;
-        color: #bbb;
-      }
-
-      .article-views {
+      .meta-box {
         display: flex;
         align-items: center;
         gap: 6rpx;
 
-        .view-count {
+        .value {
           font-size: 22rpx;
-          color: #bbb;
+          color: #999;
         }
       }
     }
