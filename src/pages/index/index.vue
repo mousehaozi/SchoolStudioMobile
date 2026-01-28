@@ -6,24 +6,49 @@
     <!-- Custom Header -->
     <view class="custom-header">
       <view class="header-content">
-        <image src="/static/appLogo.png" class="home-icon" mode="aspectFit"></image>
+        <image
+          src="/static/appLogo.png"
+          class="home-icon"
+          mode="aspectFit"
+        ></image>
         <text class="header-title">重工车辆工程学院成果转化创新工作室</text>
       </view>
     </view>
 
     <!-- Loading State -->
     <view v-if="loading" class="loading-state">
-      <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
+      <u-loadmore
+        status="loading"
+        loading-text="正在加载中..."
+        iconSize="18"
+        fontSize="16"
+      />
     </view>
 
     <!-- Main Content Area -->
     <view class="main-body" v-else>
       <!-- Banner Section -->
       <view class="banner-section">
-        <swiper class="banner-swiper" circular indicator-dots autoplay interval="5000" duration="1000"
-          indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
-          <swiper-item v-for="(item, index) in bannerList" :key="index" @click="onBannerClick(item)">
-            <image class="banner-image" :src="item.imageUrl || '/static/appLogo.png'" mode="aspectFill"></image>
+        <swiper
+          class="banner-swiper"
+          circular
+          indicator-dots
+          autoplay
+          interval="5000"
+          duration="1000"
+          indicator-color="rgba(255, 255, 255, 0.4)"
+          indicator-active-color="#ffffff"
+        >
+          <swiper-item
+            v-for="(item, index) in bannerList"
+            :key="index"
+            @click="onBannerClick(item)"
+          >
+            <image
+              class="banner-image"
+              :src="item.imageUrl || '/static/appLogo.png'"
+              mode="aspectFill"
+            ></image>
           </swiper-item>
         </swiper>
       </view>
@@ -34,12 +59,26 @@
         <view class="sidebar">
           <scroll-view scroll-y class="sidebar-scroll">
             <view class="sidebar-title">
-              <image src="/static/img/index/home.webp" class="sidebar-title-icon" mode="widthFix"></image>
-              <text>工作室</text>
+              <image
+                src="/static/img/index/home.webp"
+                class="sidebar-title-icon"
+                mode="widthFix"
+              ></image>
+              <text class="sidebar-title-text">工作室</text>
             </view>
-            <view v-for="studio in studioList" :key="studio.id" class="sidebar-item"
-              :class="{ active: currentStudioId === studio.id }" @click="currentStudioId = studio.id">
-              <image v-if="studio.iconUrl" :src="studio.iconUrl" class="studio-icon" mode="aspectFill">
+            <view
+              v-for="studio in studioList"
+              :key="studio.id"
+              class="sidebar-item"
+              :class="{ active: currentStudioId === studio.id }"
+              @click="currentStudioId = studio.id"
+            >
+              <image
+                v-if="studio.iconUrl"
+                :src="studio.iconUrl"
+                class="studio-icon"
+                mode="aspectFill"
+              >
               </image>
               <text class="studio-name">{{ studio.name }}</text>
             </view>
@@ -50,21 +89,42 @@
         <view class="content-main">
           <!-- Tab Bar -->
           <view class="tab-header">
-            <view class="tab-item" :class="{ active: currentTab === 'intro' }" @click="currentTab = 'intro'">
+            <view
+              class="tab-item"
+              :class="{ active: currentTab === 'intro' }"
+              @click="currentTab = 'intro'"
+            >
               <view class="tab-icon-wrap">
-                <image src="/static/img/index/WorkRoom.webp" class="tab-icon"></image>
+                <image
+                  src="/static/img/index/WorkRoom.webp"
+                  class="tab-icon"
+                ></image>
               </view>
               <text>工作室介绍</text>
             </view>
-            <view class="tab-item" :class="{ active: currentTab === 'dynamic' }" @click="currentTab = 'dynamic'">
+            <view
+              class="tab-item"
+              :class="{ active: currentTab === 'dynamic' }"
+              @click="currentTab = 'dynamic'"
+            >
               <view class="tab-icon-wrap">
-                <image src="/static/img/index/WorkUpdates.webp" class="tab-icon"></image>
+                <image
+                  src="/static/img/index/WorkUpdates.webp"
+                  class="tab-icon"
+                ></image>
               </view>
               <text>工作动态</text>
             </view>
-            <view class="tab-item" :class="{ active: currentTab === 'integraEdu' }" @click="currentTab = 'integraEdu'">
+            <view
+              class="tab-item"
+              :class="{ active: currentTab === 'integraEdu' }"
+              @click="currentTab = 'integraEdu'"
+            >
               <view class="tab-icon-wrap">
-                <image src="/static/img/index/need.webp" class="tab-icon"></image>
+                <image
+                  src="/static/img/index/need.webp"
+                  class="tab-icon"
+                ></image>
               </view>
               <text>产教融合</text>
             </view>
@@ -72,11 +132,33 @@
 
           <!-- Scrollable Component Area -->
           <view class="component-wrapper">
-            <scroll-view scroll-y class="component-scroll" :scroll-top="scrollTop" @scroll="onScroll"
-              @scrolltolower="handleScrollToLower" :show-scrollbar="false" enhanced :bounces="true">
-              <IntroComponent v-if="currentTab === 'intro'" :studioId="currentStudioId" ref="introRef" />
-              <DynamicComponent v-if="currentTab === 'dynamic'" :studioId="currentStudioId" ref="dynamicRef" />
-              <IntegraEduComponent v-if="currentTab === 'integraEdu'" :studioId="currentStudioId" ref="integraEduRef" />
+            <scroll-view
+              scroll-y
+              class="component-scroll"
+              :scroll-top="scrollTop"
+              @scroll="onScroll"
+              @scrolltolower="handleScrollToLower"
+              :show-scrollbar="false"
+              enhanced
+              :bounces="true"
+            >
+              <!-- Placeholder for absolute tab-header -->
+              <view class="tab-header-placeholder"></view>
+              <IntroComponent
+                v-if="currentTab === 'intro'"
+                :studioId="currentStudioId"
+                ref="introRef"
+              />
+              <DynamicComponent
+                v-if="currentTab === 'dynamic'"
+                :studioId="currentStudioId"
+                ref="dynamicRef"
+              />
+              <IntegraEduComponent
+                v-if="currentTab === 'integraEdu'"
+                :studioId="currentStudioId"
+                ref="integraEduRef"
+              />
               <!-- Bottom Spacer for better scroll experience -->
               <view class="scroll-bottom-spacer"></view>
             </scroll-view>
@@ -87,7 +169,11 @@
       <!-- Empty State -->
       <view class="empty-state-section" v-else>
         <view class="card empty-card">
-          <image src="/static/img/index/home.webp" class="empty-icon" mode="widthFix"></image>
+          <image
+            src="/static/img/index/home.webp"
+            class="empty-icon"
+            mode="widthFix"
+          ></image>
           <text class="empty-text">暂无工作室</text>
         </view>
       </view>
@@ -132,9 +218,9 @@ watch([currentTab, currentStudioId], () => {
 });
 
 const handleScrollToLower = () => {
-  if (currentTab.value === 'dynamic' && dynamicRef.value) {
+  if (currentTab.value === "dynamic" && dynamicRef.value) {
     dynamicRef.value.loadMore();
-  } else if (currentTab.value === 'integraEdu' && integraEduRef.value) {
+  } else if (currentTab.value === "integraEdu" && integraEduRef.value) {
     integraEduRef.value.loadMore();
   }
 };
@@ -167,13 +253,10 @@ const fetchStudiosData = async () => {
 onLoad(() => {
   // Set page title for H5
   uni.setNavigationBarTitle({
-    title: '重工车辆工程学院成果转化创新工作室'
+    title: "重工车辆工程学院成果转化创新工作室",
   });
 
-  Promise.all([
-    fetchBanners(),
-    fetchStudiosData()
-  ]).finally(() => {
+  Promise.all([fetchBanners(), fetchStudiosData()]).finally(() => {
     loading.value = false;
   });
 });
@@ -292,9 +375,14 @@ const onBannerClick = (item) => {
 
 /* Sidebar */
 .sidebar {
-  width: 180rpx;
-  border-right: 1rpx solid rgba(0, 0, 0, 0.03);
-  background: rgba(255, 255, 255, 0.3);
+  width: 144rpx;
+  border-right: 1rpx solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: width 0.3s ease;
+  z-index: 2;
+  padding-top: 10rpx;
 }
 
 .sidebar-scroll {
@@ -302,23 +390,29 @@ const onBannerClick = (item) => {
 }
 
 .sidebar-title {
-  padding: 24rpx 20rpx;
-  font-size: 24rpx;
-  color: #999;
-  font-weight: bold;
+  padding: 30rpx 10rpx;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 10rpx;
 
   .sidebar-title-icon {
-    width: 48rpx;
-    height: 48rpx !important;
+    width: 60rpx;
+    height: 60rpx !important;
+    opacity: 0.6;
+  }
+
+  .sidebar-title-text {
+    display: none; // Only icon for the list title when narrow
   }
 }
 
 .sidebar-item {
-  padding: 30rpx 12rpx;
+  padding: 24rpx 10rpx;
+  margin: 20rpx 16rpx;
+  border-radius: 24rpx;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -326,25 +420,44 @@ const onBannerClick = (item) => {
   gap: 12rpx;
 
   &.active {
-    background: #fff;
-    box-shadow: inset 4rpx 0 0 #007aff;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(240, 245, 255, 0.7) 100%
+    );
+    border: 1rpx solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+      0 10rpx 30rpx rgba(0, 0, 0, 0.08),
+      0 4rpx 12rpx rgba(0, 122, 255, 0.05),
+      inset 0 0 0 1rpx rgba(255, 255, 255, 0.5);
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 25%;
+      bottom: 25%;
+      width: 6rpx;
+      background: #007aff;
+      border-radius: 0 6rpx 6rpx 0;
+      box-shadow: 0 0 15rpx rgba(0, 122, 255, 0.4);
+    }
 
     .studio-name {
       color: #007aff;
-      font-weight: 600;
-      transform: scale(1.05);
+      font-weight: bold;
     }
 
     .studio-icon {
-      transform: translateY(-4rpx);
+      box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.1);
     }
   }
 }
 
 .studio-icon {
-  width: 58rpx;
-  height: 58rpx;
-  border-radius: 8rpx;
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 12rpx;
   flex-shrink: 0;
   background-color: #f8fafc;
   transition: all 0.3s;
@@ -352,9 +465,10 @@ const onBannerClick = (item) => {
 }
 
 .studio-name {
-  font-size: 22rpx;
-  line-height: 1.3;
-  color: #4B5563;
+  display: block; // Always visible
+  font-size: 20rpx;
+  line-height: 1.2;
+  color: #666;
   text-align: center;
   word-break: break-all;
   transition: all 0.3s;
@@ -366,20 +480,36 @@ const onBannerClick = (item) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url("/static/img/bgImg.png");
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+    url("/static/img/bgImg.png");
   background-size: cover;
   background-position: center;
   border-top-left-radius: 30rpx;
   backdrop-filter: blur(5px);
   position: relative;
+  overflow: hidden;
 }
 
 .tab-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   justify-content: space-around;
   padding: 30rpx 10rpx;
-  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
-  background: #fff;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.tab-header-placeholder {
+  height: 160rpx;
+  flex-shrink: 0;
 }
 
 .tab-item {
