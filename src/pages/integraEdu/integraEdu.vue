@@ -55,7 +55,7 @@
         </view>
         <view class="no-more">
           <u-loadmore :status="noMore ? 'nomore' : (loading ? 'loading' : 'loadmore')" :loading-text="'正在加载中...'"
-            :nomore-text="'没有更多了'" iconSize="16" fontSize="14" />
+            :nomore-text="'没有更多了...'" iconSize="16" fontSize="12" color="#999" />
         </view>
       </view>
     </template>
