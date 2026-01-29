@@ -30,7 +30,6 @@
 
       <!-- Split Layout Area -->
       <view class="split-container" v-if="studioList.length > 0">
-        <!-- Left: Studio List -->
         <view class="sidebar">
           <scroll-view scroll-y class="sidebar-scroll">
             <view class="sidebar-title">
@@ -44,6 +43,14 @@
               <text class="studio-name">{{ studio.name }}</text>
             </view>
           </scroll-view>
+
+          <!-- Bottom Action: Question Consultation -->
+          <view class="sidebar-bottom" @click="goToQuestion">
+            <view class="bottom-item">
+              <image src="/static/img/index/FeeBack.webp" class="bottom-icon" mode="widthFix"></image>
+              <text class="bottom-text">问题咨询</text>
+            </view>
+          </view>
         </view>
 
         <!-- Right: Tabs & Content -->
@@ -189,6 +196,12 @@ const onBannerClick = (item) => {
     // #endif
   }
 };
+
+const goToQuestion = () => {
+  uni.navigateTo({
+    url: "/pages/serviceConversa/serviceConversa",
+  });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -299,10 +312,13 @@ const onBannerClick = (item) => {
   transition: width 0.3s ease;
   z-index: 2;
   padding-top: 10rpx;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-scroll {
-  height: 100%;
+  flex: 1;
+  height: 0;
 }
 
 .sidebar-title {
@@ -386,6 +402,38 @@ const onBannerClick = (item) => {
   text-align: center;
   word-break: break-all;
   transition: all 0.3s;
+}
+
+/* Sidebar Bottom */
+.sidebar-bottom {
+  padding: 30rpx 10rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+  padding-bottom: calc(30rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+}
+
+.bottom-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s;
+
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.bottom-icon {
+  width: 52rpx;
+  height: 52rpx !important;
+  opacity: 0.8;
+}
+
+.bottom-text {
+  font-size: 20rpx;
+  color: #666;
+  font-weight: 500;
 }
 
 /* Main Right Content */

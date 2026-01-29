@@ -41,7 +41,7 @@
 
 				<view class="giveLike" @click="giveLikeFun">
 					<u-icon :name="detailData.liked ? 'thumb-up-fill' : 'thumb-up'" color="#2979ff" size="24"></u-icon>
-					<text>{{ detailData.likeCount }}人点赞</text>
+					<text style="margin-left: 6rpx;">{{ detailData.likeCount }}人点赞</text>
 				</view>
 
 				<view class="card-divider header-divider"></view>

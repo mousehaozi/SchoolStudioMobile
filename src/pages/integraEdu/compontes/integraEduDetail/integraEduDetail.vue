@@ -27,7 +27,7 @@
 
 				<view class="giveLike" @click="giveLikeFun">
 					<u-icon :name="detail.liked ? 'thumb-up-fill' : 'thumb-up'" color="#2979ff" size="24"></u-icon>
-					<text>{{ detail.likeCount }}人点赞</text>
+					<text style="margin-left: 6rpx;">{{ detail.likeCount }}人点赞</text>
 				</view>
 
 				<view class="tags">
