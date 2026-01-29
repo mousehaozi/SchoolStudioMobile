@@ -26,9 +26,7 @@
             <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
             <text class="info-label">工作室领衔人</text>
           </view>
-          <text class="info-content highlight">{{
-            profile.leaderName || "暂无"
-          }}</text>
+          <text class="info-content highlight">{{ profile.leaderName || "暂无" }}</text>
           <text class="info-desc">{{ profile.leaderIntro || "暂无" }}</text>
         </view>
 
@@ -41,15 +39,18 @@
               <u-icon name="phone-fill" color="#3B82F6" size="18"></u-icon>
               <text class="info-label">联系我们</text>
             </view>
-            <view class="follow-btn mini" v-if="profile.wechatUrl" @click="goToWechat(profile.wechatUrl)">
-              <text>关注</text>
-            </view>
           </view>
           <view class="contact-grid-modern" v-if="profile.contactUsParsed && profile.contactUsParsed.length > 0">
             <view class="contact-card-mini" v-for="(item, index) in profile.contactUsParsed" :key="index"
               @click="makeCall(item.phone)">
               <view class="contact-main-info">
-                <text class="name">{{ item.name }}</text>
+                <view class="name-row">
+                  <text class="name">{{ item.name }}</text>
+                  <view v-if="item.wechatUrl" class="follow-btn-inline" @click.stop="goToWechat(item.wechatUrl)">
+                    <u-icon name="plus" color="#ffffff" size="10"></u-icon>
+                    <text>关注</text>
+                  </view>
+                </view>
                 <text class="role">{{ item.distraction || "业务联系人" }}</text>
               </view>
               <u-icon name="phone-fill" color="#3B82F6" size="16"></u-icon>
@@ -775,6 +776,36 @@ const goToWechat = (url) => {
     font-size: 24rpx;
     color: #3b82f6;
     font-weight: 500;
+  }
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.follow-btn-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+  padding: 8rpx 16rpx;
+  background: linear-gradient(135deg, #07c160 0%, #06ae56 100%);
+  border-radius: 100rpx;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+
+  text {
+    color: #ffffff;
+    font-size: 22rpx;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 </style>
