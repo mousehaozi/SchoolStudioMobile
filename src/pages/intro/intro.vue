@@ -4,12 +4,7 @@
     <view class="status-bar-placeholder"></view>
     <!-- Loading State -->
     <view v-if="loading" class="loading-state">
-      <u-loadmore
-        status="loading"
-        loading-text="正在加载中..."
-        iconSize="18"
-        fontSize="16"
-      />
+      <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
     </view>
     <view class="content-wrapper" v-else>
       <!-- Main Intro Text -->
@@ -19,54 +14,40 @@
           <text class="card-title">简介</text>
         </view>
         <view class="intro-paragraph">
-          <rich-text
-            :nodes="profile.contentHtml"
-            v-if="profile.contentHtml"
-          ></rich-text>
+          <rich-text :nodes="profile.contentHtml" v-if="profile.contentHtml"></rich-text>
           <text v-else>暂无简介</text>
         </view>
       </view>
 
       <!-- Info Sections -->
       <view class="card info-card">
-        <view class="info-item leader-row-item">
-          <view class="leader-main-content">
-            <view class="label-row">
-              <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
-              <text class="info-label">工作室领衔人</text>
-            </view>
-            <text class="info-content highlight">{{
-              profile.leaderName || "暂无"
-            }}</text>
-            <text class="info-desc">{{ profile.leaderIntro || "暂无" }}</text>
+        <view class="info-item">
+          <view class="label-row">
+            <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
+            <text class="info-label">工作室领衔人</text>
           </view>
-          <view
-            class="follow-btn mini"
-            v-if="profile.wechatUrl"
-            @click="goToWechat(profile.wechatUrl)"
-          >
-            <text>关注</text>
-          </view>
+          <text class="info-content highlight">{{
+            profile.leaderName || "暂无"
+          }}</text>
+          <text class="info-desc">{{ profile.leaderIntro || "暂无" }}</text>
         </view>
 
         <view class="divider"></view>
 
         <!-- Contact Us (Moved here) -->
         <view class="info-item">
-          <view class="label-row">
-            <u-icon name="phone-fill" color="#3B82F6" size="18"></u-icon>
-            <text class="info-label">联系我们</text>
+          <view class="label-row space-between">
+            <view class="label-left">
+              <u-icon name="phone-fill" color="#3B82F6" size="18"></u-icon>
+              <text class="info-label">联系我们</text>
+            </view>
+            <view class="follow-btn mini" v-if="profile.wechatUrl" @click="goToWechat(profile.wechatUrl)">
+              <text>关注</text>
+            </view>
           </view>
-          <view
-            class="contact-grid-modern"
-            v-if="profile.contactUsParsed && profile.contactUsParsed.length > 0"
-          >
-            <view
-              class="contact-card-mini"
-              v-for="(item, index) in profile.contactUsParsed"
-              :key="index"
-              @click="makeCall(item.phone)"
-            >
+          <view class="contact-grid-modern" v-if="profile.contactUsParsed && profile.contactUsParsed.length > 0">
+            <view class="contact-card-mini" v-for="(item, index) in profile.contactUsParsed" :key="index"
+              @click="makeCall(item.phone)">
               <view class="contact-main-info">
                 <text class="name">{{ item.name }}</text>
                 <text class="role">{{ item.distraction || "业务联系人" }}</text>
@@ -85,20 +66,13 @@
             <text class="info-label">组织架构</text>
           </view>
           <view class="tag-group">
-            <view
-              class="tag"
-              v-for="(item, index) in profile.orgStructureParsed"
-              :key="index"
-            >
+            <view class="tag" v-for="(item, index) in profile.orgStructureParsed" :key="index">
               {{ item }}
             </view>
-            <view
-              class="tag"
-              v-if="
-                !profile.orgStructureParsed ||
-                profile.orgStructureParsed.length === 0
-              "
-            >
+            <view class="tag" v-if="
+              !profile.orgStructureParsed ||
+              profile.orgStructureParsed.length === 0
+            ">
               暂无
             </view>
           </view>
@@ -108,11 +82,7 @@
 
         <view class="info-item">
           <view class="label-row">
-            <u-icon
-              name="checkmark-circle-fill"
-              color="#3B82F6"
-              size="18"
-            ></u-icon>
+            <u-icon name="checkmark-circle-fill" color="#3B82F6" size="18"></u-icon>
             <text class="info-label">核心职能</text>
           </view>
           <text class="info-content">{{
@@ -123,32 +93,23 @@
 
       <!-- Mock Gallery Sections -->
       <view class="gallery-section">
-        <view
-          class="card gallery-card"
-          v-for="(section, index) in galleryList"
-          :key="index"
-        >
+        <view class="card gallery-card" v-for="(item, index) in galleryList" :key="item.id" @click="goToDetail(item)">
           <view class="card-header">
             <view class="title-line"></view>
-            <text class="card-title">{{ section.title }}</text>
+            <text class="card-title">{{ item.title }}</text>
           </view>
 
           <view class="gallery-content">
             <view class="gallery-image-wrapper">
-              <image
-                class="gallery-image"
-                :src="section.image"
-                mode="aspectFill"
-                lazy-load
-              ></image>
+              <image class="gallery-image" :src="item.coverUrl" mode="aspectFill" lazy-load></image>
               <view class="image-overlay">
                 <text class="overlay-tag">专题展示</text>
               </view>
             </view>
             <view class="gallery-info">
-              <text class="gallery-desc">{{ section.desc }}</text>
+              <text class="gallery-desc">{{ item.summary }}</text>
               <view class="gallery-footer">
-                <text class="date">2026-01-28</text>
+                <text class="date">{{ formatDate(item.createdAt, 'YYYY-MM-DD') }}</text>
                 <view class="more-link">
                   <text>查看更多</text>
                   <u-icon name="arrow-right" size="12" color="#3B82F6"></u-icon>
@@ -164,8 +125,8 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import { getStudioProfileById } from "@/api/index.js";
-import { getStudioProfile } from "@/api/intro.js";
+import { getStudioProfileById, getStudioIntroArticles } from "@/api/index.js";
+import { formatDate } from "@/utils/formatDate.js";
 
 const props = defineProps({
   studioId: [String, Number],
@@ -184,38 +145,7 @@ const profile = ref({
 });
 const loading = ref(true);
 
-const galleryList = ref([
-  {
-    title: "1.主题图墙 [国际交流]",
-    desc: "工作室积极开展国际交流与合作，与多家海外知名院校建立合作关系，推进成果转化。通过跨国学术沙龙与技术攻坚项目，不断提升工作室的国际影响力。",
-    image: "https://bing.ee123.net/img/rand?v=1",
-  },
-  {
-    title: "2.组织图墙",
-    desc: "完善的组织架构与职能分工，确保每一个项目都能高效推进。我们汇聚了行业顶尖导师与跨学科青年骨干，打造产学研深度融合的创新团队。",
-    image: "https://bing.ee123.net/img/rand?v=2",
-  },
-  {
-    title: "3.场地布局图 [新闻]",
-    desc: "工作室最新场地布局发布。配备了先进的车辆工程实验设备与成果展示区，为师生提供了沉浸式的科研与创新环境，助力项目快速孵化与落地。",
-    image: "https://bing.ee123.net/img/rand?v=3",
-  },
-  {
-    title: "4.成效展示 [成果转化]",
-    desc: "车辆工程学院召开近期成果转化专题会议。展示了多项具有行业突破性的专利技术与应用案例，实现了从实验室到市场的完美跃迁，成效显著。",
-    image: "https://bing.ee123.net/img/rand?v=4",
-  },
-  {
-    title: "5.服务发展图墙",
-    desc: "坚持服务地方经济发展，与多家头部汽车制造企业深度对接。通过技术输出与人才定向培养，有效解决企业痛点，为行业高质量发展贡献青春力量。",
-    image: "https://bing.ee123.net/img/rand?v=5",
-  },
-  {
-    title: "6.联盟建设图墙",
-    desc: "领衔建设行业创新联盟，汇聚政府、高校、企业三方资源。通过政策引导、资源共享与风险共担机制，构建全生命周期的协同创新生态圈。",
-    image: "https://bing.ee123.net/img/rand?v=6",
-  },
-]);
+const galleryList = ref([]);
 
 const processRichText = (html) => {
   if (!html) return "";
@@ -233,7 +163,6 @@ const fetchProfile = async () => {
     if (props.studioId) {
       res = await getStudioProfileById(props.studioId);
     } else {
-      res = await getStudioProfile();
     }
 
     if (res.code === 0 || res.code === 200) {
@@ -310,16 +239,39 @@ const fetchProfile = async () => {
   }
 };
 
+const fetchIntroArticles = async () => {
+  if (!props.studioId) return;
+  try {
+    const res = await getStudioIntroArticles(props.studioId);
+    if (res.code === 0 || res.code === 200) {
+      galleryList.value = res.data || [];
+    }
+  } catch (e) {
+    console.error("Fetch intro articles failed:", e);
+  }
+};
+
 watch(
   () => props.studioId,
   () => {
     fetchProfile();
+    fetchIntroArticles();
   },
 );
 
 onMounted(() => {
   fetchProfile();
+  fetchIntroArticles();
 });
+
+const goToDetail = (item) => {
+  // We pass the whole object as a stringified parameter. 
+  // Note: For very large HTML content, this might hit URL length limits in some browsers.
+  // But for standard intro articles, it's usually fine.
+  uni.navigateTo({
+    url: `/pages/intro/compontes/introDetail/introDetail?data=${encodeURIComponent(JSON.stringify(item))}`
+  });
+};
 
 const makeCall = (phoneNumber) => {
   uni.makePhoneCall({
@@ -484,6 +436,17 @@ const goToWechat = (url) => {
   align-items: center;
   gap: 12rpx;
   margin-bottom: 16rpx;
+
+  &.space-between {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .label-left {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+  }
 }
 
 .info-label {
@@ -631,9 +594,8 @@ const goToWechat = (url) => {
 }
 
 .follow-btn.mini {
-  padding: 8rpx 24rpx;
+  padding: 8rpx 20rpx;
   border-radius: 30rpx;
-  margin-right: 10rpx;
   flex-shrink: 0;
 }
 
@@ -786,6 +748,7 @@ const goToWechat = (url) => {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
 }
 

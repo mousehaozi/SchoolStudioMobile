@@ -10,7 +10,7 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationStyle": "custom",
-				"navigationBarTitleText": "重工车辆工程学院成果转化创新工作室"
+				"navigationBarTitleText": "重工大劳模和工匠人才创新工作室"
 			}
 		},
 		{
@@ -24,6 +24,12 @@
 			"path": "pages/intro/intro",
 			"style": {
 				"navigationBarTitleText": "工作室介绍"
+			}
+		},
+		{
+			"path": "pages/intro/compontes/introDetail/introDetail",
+			"style": {
+				"navigationBarTitleText": "详情"
 			}
 		},
 		{
@@ -82,7 +88,7 @@
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "重工车辆工程学院成果转化创新工作室",
+		"navigationBarTitleText": "重工大劳模和工匠人才创新工作室",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	}

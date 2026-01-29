@@ -6,49 +6,24 @@
     <!-- Custom Header -->
     <view class="custom-header">
       <view class="header-content">
-        <image
-          src="/static/appLogo.png"
-          class="home-icon"
-          mode="aspectFit"
-        ></image>
-        <text class="header-title">重工车辆工程学院成果转化创新工作室</text>
+        <image src="/static/appLogo.png" class="home-icon" mode="aspectFit"></image>
+        <text class="header-title">重工大劳模和工匠人才创新工作室</text>
       </view>
     </view>
 
     <!-- Loading State -->
     <view v-if="loading" class="loading-state">
-      <u-loadmore
-        status="loading"
-        loading-text="正在加载中..."
-        iconSize="18"
-        fontSize="16"
-      />
+      <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
     </view>
 
     <!-- Main Content Area -->
     <view class="main-body" v-else>
       <!-- Banner Section -->
       <view class="banner-section">
-        <swiper
-          class="banner-swiper"
-          circular
-          indicator-dots
-          autoplay
-          interval="5000"
-          duration="1000"
-          indicator-color="rgba(255, 255, 255, 0.4)"
-          indicator-active-color="#ffffff"
-        >
-          <swiper-item
-            v-for="(item, index) in bannerList"
-            :key="index"
-            @click="onBannerClick(item)"
-          >
-            <image
-              class="banner-image"
-              :src="item.imageUrl || '/static/appLogo.png'"
-              mode="aspectFill"
-            ></image>
+        <swiper class="banner-swiper" circular indicator-dots autoplay interval="5000" duration="1000"
+          indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
+          <swiper-item v-for="(item, index) in bannerList" :key="index" @click="onBannerClick(item)">
+            <image class="banner-image" :src="item.imageUrl || '/static/appLogo.png'" mode="aspectFill"></image>
           </swiper-item>
         </swiper>
       </view>
@@ -59,26 +34,12 @@
         <view class="sidebar">
           <scroll-view scroll-y class="sidebar-scroll">
             <view class="sidebar-title">
-              <image
-                src="/static/img/index/home.webp"
-                class="sidebar-title-icon"
-                mode="widthFix"
-              ></image>
+              <image src="/static/img/index/home.webp" class="sidebar-title-icon" mode="widthFix"></image>
               <text class="sidebar-title-text">工作室</text>
             </view>
-            <view
-              v-for="studio in studioList"
-              :key="studio.id"
-              class="sidebar-item"
-              :class="{ active: currentStudioId === studio.id }"
-              @click="currentStudioId = studio.id"
-            >
-              <image
-                v-if="studio.iconUrl"
-                :src="studio.iconUrl"
-                class="studio-icon"
-                mode="aspectFill"
-              >
+            <view v-for="studio in studioList" :key="studio.id" class="sidebar-item"
+              :class="{ active: currentStudioId === studio.id }" @click="currentStudioId = studio.id">
+              <image v-if="studio.iconUrl" :src="studio.iconUrl" class="studio-icon" mode="aspectFill">
               </image>
               <text class="studio-name">{{ studio.name }}</text>
             </view>
@@ -89,42 +50,21 @@
         <view class="content-main">
           <!-- Tab Bar -->
           <view class="tab-header">
-            <view
-              class="tab-item"
-              :class="{ active: currentTab === 'intro' }"
-              @click="currentTab = 'intro'"
-            >
+            <view class="tab-item" :class="{ active: currentTab === 'intro' }" @click="currentTab = 'intro'">
               <view class="tab-icon-wrap">
-                <image
-                  src="/static/img/index/WorkRoom.webp"
-                  class="tab-icon"
-                ></image>
+                <image src="/static/img/index/WorkRoom.webp" class="tab-icon"></image>
               </view>
               <text>工作室介绍</text>
             </view>
-            <view
-              class="tab-item"
-              :class="{ active: currentTab === 'dynamic' }"
-              @click="currentTab = 'dynamic'"
-            >
+            <view class="tab-item" :class="{ active: currentTab === 'dynamic' }" @click="currentTab = 'dynamic'">
               <view class="tab-icon-wrap">
-                <image
-                  src="/static/img/index/WorkUpdates.webp"
-                  class="tab-icon"
-                ></image>
+                <image src="/static/img/index/WorkUpdates.webp" class="tab-icon"></image>
               </view>
               <text>工作动态</text>
             </view>
-            <view
-              class="tab-item"
-              :class="{ active: currentTab === 'integraEdu' }"
-              @click="currentTab = 'integraEdu'"
-            >
+            <view class="tab-item" :class="{ active: currentTab === 'integraEdu' }" @click="currentTab = 'integraEdu'">
               <view class="tab-icon-wrap">
-                <image
-                  src="/static/img/index/need.webp"
-                  class="tab-icon"
-                ></image>
+                <image src="/static/img/index/need.webp" class="tab-icon"></image>
               </view>
               <text>产教融合</text>
             </view>
@@ -132,33 +72,13 @@
 
           <!-- Scrollable Component Area -->
           <view class="component-wrapper">
-            <scroll-view
-              scroll-y
-              class="component-scroll"
-              :scroll-top="scrollTop"
-              @scroll="onScroll"
-              @scrolltolower="handleScrollToLower"
-              :show-scrollbar="false"
-              enhanced
-              :bounces="true"
-            >
+            <scroll-view scroll-y class="component-scroll" :scroll-top="scrollTop" @scroll="onScroll"
+              @scrolltolower="handleScrollToLower" :show-scrollbar="false" enhanced :bounces="true">
               <!-- Placeholder for absolute tab-header -->
               <view class="tab-header-placeholder"></view>
-              <IntroComponent
-                v-if="currentTab === 'intro'"
-                :studioId="currentStudioId"
-                ref="introRef"
-              />
-              <DynamicComponent
-                v-if="currentTab === 'dynamic'"
-                :studioId="currentStudioId"
-                ref="dynamicRef"
-              />
-              <IntegraEduComponent
-                v-if="currentTab === 'integraEdu'"
-                :studioId="currentStudioId"
-                ref="integraEduRef"
-              />
+              <IntroComponent v-if="currentTab === 'intro'" :studioId="currentStudioId" ref="introRef" />
+              <DynamicComponent v-if="currentTab === 'dynamic'" :studioId="currentStudioId" ref="dynamicRef" />
+              <IntegraEduComponent v-if="currentTab === 'integraEdu'" :studioId="currentStudioId" ref="integraEduRef" />
               <!-- Bottom Spacer for better scroll experience -->
               <view class="scroll-bottom-spacer"></view>
             </scroll-view>
@@ -169,11 +89,7 @@
       <!-- Empty State -->
       <view class="empty-state-section" v-else>
         <view class="card empty-card">
-          <image
-            src="/static/img/index/home.webp"
-            class="empty-icon"
-            mode="widthFix"
-          ></image>
+          <image src="/static/img/index/home.webp" class="empty-icon" mode="widthFix"></image>
           <text class="empty-text">暂无工作室</text>
         </view>
       </view>
@@ -253,7 +169,7 @@ const fetchStudiosData = async () => {
 onLoad(() => {
   // Set page title for H5
   uni.setNavigationBarTitle({
-    title: "重工车辆工程学院成果转化创新工作室",
+    title: "重工大劳模和工匠人才创新工作室",
   });
 
   Promise.all([fetchBanners(), fetchStudiosData()]).finally(() => {
@@ -420,11 +336,9 @@ const onBannerClick = (item) => {
   gap: 12rpx;
 
   &.active {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(240, 245, 255, 0.7) 100%
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(240, 245, 255, 0.7) 100%);
     border: 1rpx solid rgba(255, 255, 255, 0.6);
     box-shadow:
       0 10rpx 30rpx rgba(0, 0, 0, 0.08),
@@ -485,7 +399,6 @@ const onBannerClick = (item) => {
     url("/static/img/bgImg.png");
   background-size: cover;
   background-position: center;
-  border-top-left-radius: 30rpx;
   backdrop-filter: blur(5px);
   position: relative;
   overflow: hidden;

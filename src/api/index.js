@@ -113,3 +113,22 @@ export const getStudioProfileById = (studioId) => {
     });
 };
 
+/**
+ * 获取简介图文列表
+ */
+export const getStudioIntroArticles = (studioId) => {
+    return request({
+        url: `/studios/${studioId}/intro-articles`,
+        method: "GET",
+    });
+};
+
+/**
+ * 获取简介图文详情
+ */
+export const getStudioIntroArticleDetail = (studioId, id) => {
+    return request({
+        url: `/studios/${studioId}/intro-articles/${id}`,
+        method: "GET",
+    });
+};
