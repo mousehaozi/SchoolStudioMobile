@@ -7,6 +7,25 @@
       <u-loadmore status="loading" loading-text="正在加载中..." iconSize="18" fontSize="16" />
     </view>
     <view class="content-wrapper" v-else>
+      <!-- Studio Profile Header -->
+      <view class="card profile-header-card" v-if="profile.title || level">
+        <view class="profile-main-info">
+          <view class="title-row">
+            <text class="studio-name-big">{{ profile.title || props.studioName || '创新工作室' }}</text>
+          </view>
+          <view class="badges-row">
+            <view v-if="level" class="level-label" :class="level === '国家级' ? 'national' : 'provincial'">
+              <u-icon v-if="level === '国家级'" name="star-fill" color="#ffffff" size="14"></u-icon>
+              <u-icon v-else name="integral-fill" color="#ffffff" size="14"></u-icon>
+              <text class="level-text">{{ level }}{{ level.includes('创新工作室') ? '' : '创新工作室' }}</text>
+            </view>
+            <view class="status-badge" v-if="profile.leaderName">
+              <text>{{ profile.leaderName }} 领衔</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- Main Intro Text -->
       <view class="card intro-card">
         <view class="card-header">
@@ -131,6 +150,8 @@ import { formatDate } from "@/utils/formatDate.js";
 
 const props = defineProps({
   studioId: [String, Number],
+  level: String,
+  studioName: String,
 });
 
 const profile = ref({
@@ -378,6 +399,94 @@ const goToWechat = (url) => {
   padding: 30rpx;
   margin-bottom: 30rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.03);
+}
+
+/* Profile Header Card */
+.profile-header-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-left: 8rpx solid #3b82f6;
+  padding: 40rpx 30rpx !important;
+
+  .profile-main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20rpx;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .studio-name-big {
+    font-family: "DingTalk JinBuTi", sans-serif;
+    font-size: 40rpx;
+    font-weight: bold;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  .badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16rpx;
+    align-items: center;
+  }
+
+  .level-label {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    padding: 8rpx 24rpx;
+    border-radius: 100rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    .level-text {
+      font-size: 24rpx;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 1rpx;
+    }
+
+    &.national {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      border: 1rpx solid #fee2e2;
+      animation: shine 3s infinite;
+    }
+
+    &.provincial {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: 1rpx solid #60a5fa;
+    }
+  }
+
+  .status-badge {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-size: 22rpx;
+    padding: 6rpx 20rpx;
+    border-radius: 100rpx;
+    font-weight: 500;
+  }
+}
+
+@keyframes shine {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
 }
 
 .card-header {

@@ -38,8 +38,13 @@
             </view>
             <view v-for="studio in studioList" :key="studio.id" class="sidebar-item"
               :class="{ active: currentStudioId === studio.id }" @click="currentStudioId = studio.id">
-              <image v-if="studio.iconUrl" :src="studio.iconUrl" class="studio-icon" mode="aspectFill">
-              </image>
+              <view class="studio-icon-wrapper">
+                <image v-if="studio.iconUrl" :src="studio.iconUrl" class="studio-icon" mode="aspectFill"></image>
+                <view v-if="studio.level" class="level-tag-mini"
+                  :class="studio.level === '国家级' ? 'national' : 'provincial'">
+                  {{ studio.level === '国家级' ? '国' : '省' }}
+                </view>
+              </view>
               <text class="studio-name">{{ studio.name }}</text>
             </view>
           </scroll-view>
@@ -83,7 +88,8 @@
               @scrolltolower="handleScrollToLower" :show-scrollbar="false" enhanced :bounces="true">
               <!-- Placeholder for absolute tab-header -->
               <view class="tab-header-placeholder"></view>
-              <IntroComponent v-if="currentTab === 'intro'" :studioId="currentStudioId" ref="introRef" />
+              <IntroComponent v-if="currentTab === 'intro'" :studioId="currentStudioId" :level="currentStudioLevel"
+                :studioName="currentStudioName" ref="introRef" />
               <DynamicComponent v-if="currentTab === 'dynamic'" :studioId="currentStudioId" ref="dynamicRef" />
               <IntegraEduComponent v-if="currentTab === 'integraEdu'" :studioId="currentStudioId" ref="integraEduRef" />
               <!-- Bottom Spacer for better scroll experience -->
@@ -105,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioBanners, getStudios } from "@/api/index.js";
 import IntroComponent from "../intro/intro.vue";
@@ -117,6 +123,15 @@ const bannerList = ref([]);
 const studioList = ref([]);
 const currentStudioId = ref(null);
 const currentTab = ref("dynamic"); // Default to dynamic
+const currentStudioLevel = computed(() => {
+  const current = studioList.value.find((s) => s.id === currentStudioId.value);
+  return current ? current.level : "";
+});
+
+const currentStudioName = computed(() => {
+  const current = studioList.value.find((s) => s.id === currentStudioId.value);
+  return current ? current.name : "";
+});
 
 const dynamicRef = ref(null);
 const integraEduRef = ref(null);
@@ -163,7 +178,10 @@ const fetchStudiosData = async () => {
   try {
     const res = await getStudios();
     if (res.code === 0 || res.code === 200) {
-      studioList.value = res.data;
+      studioList.value = res.data.map((item) => ({
+        ...item,
+        level: item.studioLevel === 0 ? "国家级" : item.studioLevel === 1 ? "省级" : ""
+      }));
       if (studioList.value.length > 0) {
         currentStudioId.value = studioList.value[0].id;
       }
@@ -381,6 +399,40 @@ const goToQuestion = () => {
     .studio-icon {
       box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.1);
     }
+  }
+}
+
+.studio-icon-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.level-tag-mini {
+  position: absolute;
+  bottom: -4rpx;
+  right: -8rpx;
+  font-size: 12rpx;
+  width: 16rpx;
+  height: 16rpx;
+  line-height: 17rpx;
+  text-align: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.2);
+  border: 4rpx solid #fff;
+  z-index: 10;
+
+  &.national {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    /* Red for National */
+  }
+
+  &.provincial {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    /* Blue for Provincial */
   }
 }
 
