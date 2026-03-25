@@ -23,7 +23,8 @@
 		{
 			"path": "pages/intro/intro",
 			"style": {
-				"navigationBarTitleText": "工作室介绍"
+				"navigationBarTitleText": "工作室介绍",
+				"navigationStyle": "custom"
 			}
 		},
 		{
