@@ -147,17 +147,6 @@ const getTags = (tagsStr) => {
 
 const processRichText = (html) => {
 	if (!html) return "";
-<<<<<<< HEAD
-	return html
-		.replace(
-			/<img/gi,
-			'<img style="max-width:100%;height:auto;display:block;"'
-		)
-		.replace(
-			/<video/gi,
-			'<video style="width:100%;height:auto;display:block;"'
-		);
-=======
 	const baseUrl = 'http://192.168.0.121:8080';
 	let content = html;
 
@@ -181,7 +170,6 @@ const processRichText = (html) => {
 	});
 
 	return content;
->>>>>>> origin/dev
 };
 
 const articleId = ref("");
