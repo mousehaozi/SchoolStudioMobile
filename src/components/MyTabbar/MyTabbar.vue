@@ -4,13 +4,13 @@
       <u-icon :name="activePath === '/pages/index/index' ? 'home-fill' : 'home'" size="24" :color="activePath === '/pages/index/index' ? '#3b82f6' : '#666'"></u-icon>
       <text>首页</text>
     </view>
-    <view class="nav-item" :class="{ active: activePath === '/pages/serviceConversa/serviceConversa' }" @click="goToPage('/pages/serviceConversa/serviceConversa')">
-      <u-icon :name="activePath === '/pages/serviceConversa/serviceConversa' ? 'chat-fill' : 'chat'" size="24" :color="activePath === '/pages/serviceConversa/serviceConversa' ? '#3b82f6' : '#666'"></u-icon>
-      <text>问题咨询</text>
-    </view>
     <view class="nav-item" :class="{ active: activePath === '/pages/integraEdu/integraEdu' }" @click="goToPage('/pages/integraEdu/integraEdu')">
       <u-icon :name="activePath === '/pages/integraEdu/integraEdu' ? 'integral-fill' : 'integral'" size="24" :color="activePath === '/pages/integraEdu/integraEdu' ? '#3b82f6' : '#666'"></u-icon>
       <text>产教融合</text>
+    </view>
+    <view class="nav-item" :class="{ active: activePath === '/pages/serviceConversa/serviceConversa' }" @click="goToPage('/pages/serviceConversa/serviceConversa')">
+      <u-icon :name="activePath === '/pages/serviceConversa/serviceConversa' ? 'chat-fill' : 'chat'" size="24" :color="activePath === '/pages/serviceConversa/serviceConversa' ? '#3b82f6' : '#666'"></u-icon>
+      <text>问题咨询</text>
     </view>
   </view>
 </template>
