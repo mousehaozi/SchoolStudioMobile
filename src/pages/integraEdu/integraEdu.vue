@@ -3,16 +3,12 @@
     <!-- Global Background -->
     <view class="global-background"></view>
 
-    <!-- Topic Tabs (Horizontal Scroll with Auto-view) -->
-    <scroll-view class="topic-tabs-container" scroll-x="true" show-scrollbar="false" :scroll-into-view="tabScrollInto"
-      scroll-with-animation>
-      <view class="tabs-inner">
-        <view v-for="(topic, index) in topicList" :key="index" :id="'tab_' + index" class="topic-tab"
-          :class="{ active: currentTopicId === topic }" @click="switchTopic(topic, index)">
-          <text class="topic-text">{{ topic.name }}</text>
-        </view>
-      </view>
-    </scroll-view>
+    <!-- Topic Tabs (Using u-tabs for consistent style) -->
+    <view class="tabs-container">
+      <u-tabs :list="topicList" :current="currentTabIndex" @change="handleTabChange" :scrollable="true" lineColor="#3b82f6"
+        lineWidth="30" activeStyle="{ color: '#3b82f6', fontWeight: 'bold' }"
+        inactiveStyle="{ color: '#64748b' }"></u-tabs>
+    </view>
 
     <!-- Loading State -->
     <view v-if="initialLoading" class="loading-state">
@@ -58,7 +54,9 @@
             :nomore-text="'没有更多了...'" iconSize="16" fontSize="12" color="#999" />
         </view>
       </view>
+      <view class="bottom-spacer"></view>
     </template>
+    <MyTabbar activePath="/pages/integraEdu/integraEdu" />
   </view>
 </template>
 
@@ -80,7 +78,7 @@ const size = ref(10);
 const loading = ref(false);
 const noMore = ref(false);
 const initialLoading = ref(true);
-const tabScrollInto = ref("");
+const currentTabIndex = ref(0);
 
 import { onMounted } from 'vue';
 
@@ -126,7 +124,7 @@ const fetchTopics = async () => {
       if ((!currentTopicId.value || typeof currentTopicId.value !== 'object') && topicList.value.length > 0) {
         currentTopicId.value = topicList.value[0];
         currentTopicName.value = topicList.value[0].name;
-        tabScrollInto.value = 'tab_0';
+        currentTabIndex.value = 0;
       }
 
       fetchArticles();
@@ -167,11 +165,15 @@ const fetchArticles = async (isMore = false) => {
   }
 };
 
+const handleTabChange = (item) => {
+  switchTopic(topicList.value[item.index], item.index);
+};
+
 const switchTopic = (topic, index) => {
   if (currentTopicId.value === topic) return;
   currentTopicId.value = topic;
   currentTopicName.value = topic.name;
-  tabScrollInto.value = 'tab_' + index;
+  currentTabIndex.value = index;
   page.value = 1;
   noMore.value = false;
   articleList.value = [];
@@ -223,6 +225,8 @@ const processRichText = (html) => {
 .container {
   display: flex;
   flex-direction: column;
+  background-color: #f8f9fb;
+  min-height: 100vh;
 }
 
 .global-background {
@@ -242,60 +246,31 @@ const processRichText = (html) => {
   z-index: 0;
 }
 
-.topic-tabs-container {
+.tabs-container {
   width: 100%;
-  white-space: nowrap;
-  position: relative;
+  background-color: #fff;
   z-index: 10;
-  background-color: transparent;
-}
-
-.tabs-inner {
-  display: flex;
-  padding: 10rpx 10rpx;
-}
-
-.topic-tab {
-  display: flex;
-  align-items: center;
-  padding: 6rpx 12rpx;
-  margin-right: 6rpx;
-  flex-shrink: 0;
-  transition: all 0.3s;
-
-  .topic-text {
-    font-size: 24rpx;
-    color: #666;
-  }
-
-  &.active {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 30rpx;
-
-    .topic-text {
-      color: #3b82f6;
-      font-weight: 500;
-    }
-  }
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 
 .article-list {
   flex: 1;
-  padding: 0 10rpx 20rpx;
+  padding: 30rpx 30rpx 20rpx;
   box-sizing: border-box;
   overflow: hidden;
-  margin-top: 20rpx;
 }
 
 .article-card {
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
-  border-radius: 20rpx;
-  padding: 20rpx 24rpx 32rpx;
+  background: linear-gradient(145deg, #ffffff 0%, #fdfdff 100%);
+  border-radius: 24rpx;
+  padding: 32rpx;
   margin-bottom: 30rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.03);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
 
   .article-title {
     font-size: 32rpx;
@@ -412,5 +387,9 @@ const processRichText = (html) => {
   justify-content: center;
   padding-top: 320rpx;
   gap: 20rpx;
+}
+
+.bottom-spacer {
+  height: 150rpx;
 }
 </style>

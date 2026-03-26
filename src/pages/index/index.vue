@@ -112,24 +112,7 @@
     </scroll-view>
 
     <!-- Bottom Navigation -->
-    <view class="bottom-nav">
-      <view class="nav-item active">
-        <u-icon name="home-fill" size="24" color="#3b82f6"></u-icon>
-        <text>首页</text>
-      </view>
-      <view class="nav-item" @click="goToPage('/pages/serviceConversa/serviceConversa')">
-        <u-icon name="chat" size="24" color="#666"></u-icon>
-        <text>问题咨询</text>
-      </view>
-      <view class="nav-item" @click="goToPage('/pages/integraEdu/integraEdu')">
-        <u-icon name="integral" size="24" color="#666"></u-icon>
-        <text>成果</text>
-      </view>
-      <view class="nav-item">
-        <u-icon name="account" size="24" color="#666"></u-icon>
-        <text>我的</text>
-      </view>
-    </view>
+    <MyTabbar activePath="/pages/index/index" />
   </view>
 </template>
 
@@ -219,19 +202,17 @@ const onBannerClick = (item) => {
 
 const goToNewsDetail = (news, studio) => {
   uni.navigateTo({
-    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&tab=1`
+    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}&tab=1`
   });
 };
 
 const goToDetail = (studio) => {
   uni.navigateTo({
-    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}`
+    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}`
   });
 };
 
-const goToPage = (url) => {
-  uni.navigateTo({ url });
-};
+// goToPage is now handled by MyTabbar component
 </script>
 
 <style lang="scss" scoped>
@@ -649,31 +630,6 @@ const goToPage = (url) => {
   }
 }
 
-/* Bottom Nav */
-.bottom-nav {
-  height: 110rpx;
-  display: flex;
-  background: #fff;
-  border-top: 1rpx solid #eee;
-  padding-bottom: env(safe-area-inset-bottom);
-  box-sizing: content-box;
-}
-
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4rpx;
-  font-size: 22rpx;
-  color: #999;
-
-  &.active {
-    color: #3b82f6;
-    font-weight: bold;
-  }
-}
 
 .empty-state {
   display: flex;
@@ -695,6 +651,6 @@ const goToPage = (url) => {
 }
 
 .bottom-spacer {
-  height: 50rpx;
+  height: 150rpx;
 }
 </style>
