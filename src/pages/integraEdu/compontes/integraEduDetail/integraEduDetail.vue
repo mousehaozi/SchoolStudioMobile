@@ -37,7 +37,7 @@
 				<view class="card-divider"></view>
 
 				<view class="rich-text-content">
-					<rich-text :nodes="processRichText(detail.contentHtml)"></rich-text>
+					<u-parse :content="processRichText(detail.contentHtml)"></u-parse>
 				</view>
 			</view>
 		</view>

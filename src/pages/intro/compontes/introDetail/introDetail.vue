@@ -39,7 +39,7 @@
 
                 <!-- Content Section -->
                 <view class="article-body">
-                    <rich-text :nodes="processRichText(detailData.contentHtml)"></rich-text>
+                    <u-parse :content="processRichText(detailData.contentHtml)"></u-parse>
                 </view>
 
                 <!-- Bottom Spacer -->

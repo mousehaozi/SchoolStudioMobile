@@ -56,7 +56,7 @@
             <text class="card-title">简介</text>
           </view>
           <view class="intro-paragraph">
-            <rich-text :nodes="profile.contentHtml" v-if="profile.contentHtml"></rich-text>
+            <u-parse :content="profile.contentHtml" v-if="profile.contentHtml"></u-parse>
             <text v-else>暂无简介</text>
           </view>
         </view>
@@ -251,10 +251,15 @@ const galleryList = ref([]);
 
 const processRichText = (html) => {
   if (!html) return "";
-  return html.replace(
-    /<img/gi,
-    '<img style="max-width:100%;height:auto;display:block;"',
-  );
+  return html
+    .replace(
+      /<img/gi,
+      '<img style="max-width:100%;height:auto;display:block;"'
+    )
+    .replace(
+      /<video/gi,
+      '<video style="width:100%;height:auto;display:block;"'
+    );
 };
 
 const fetchProfile = async () => {

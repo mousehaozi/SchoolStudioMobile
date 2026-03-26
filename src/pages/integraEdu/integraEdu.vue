@@ -31,7 +31,7 @@
             <image v-if="item.coverUrl" :src="item.coverUrl" mode="aspectFill" class="article-cover"></image>
             <view class="article-content">
               <view class="article-desc">
-                <rich-text :nodes="processRichText(item.contentHtml)"></rich-text>
+                <u-parse :content="processRichText(item.contentHtml)"></u-parse>
               </view>
             </view>
           </view>

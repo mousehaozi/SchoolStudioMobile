@@ -51,7 +51,7 @@
 
 			<!-- Content Section -->
 			<view class="article-body">
-				<rich-text :nodes="processRichText(detailData.contentHtml)"></rich-text>
+				<u-parse :content="processRichText(detailData.contentHtml)"></u-parse>
 			</view>
 
 			<!-- Footer Info -->
@@ -142,10 +142,15 @@ const getTags = (tagsStr) => {
 
 const processRichText = (html) => {
 	if (!html) return "";
-	return html.replace(
-		/<img/gi,
-		'<img style="max-width:100%;height:auto;display:block;"',
-	);
+	return html
+		.replace(
+			/<img/gi,
+			'<img style="max-width:100%;height:auto;display:block;"'
+		)
+		.replace(
+			/<video/gi,
+			'<video style="width:100%;height:auto;display:block;"'
+		);
 };
 
 const articleId = ref("");
