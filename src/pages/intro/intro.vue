@@ -37,10 +37,11 @@
               <text class="studio-name-big">{{ profile.title || currentName || '创新工作室' }}</text>
             </view>
             <view class="badges-row">
-              <view v-if="currentLevel" class="level-label" :class="currentLevel === '国家级' ? 'national' : 'provincial'">
-                <u-icon name="star-fill" color="#ffffff" size="14"></u-icon>
-                <!-- <u-icon v-else name="integral-fill" color="#ffffff" size="14"></u-icon> -->
-                <text class="level-text">国家级创新工作室</text>
+              <view v-if="internalStudioLevel !== null" class="level-label"
+                :class="internalStudioLevel === 0 ? 'national' : 'provincial'">
+                <u-icon :name="internalStudioLevel === 0 ? 'star-fill' : 'integral-fill'" color="#ffffff"
+                  size="14"></u-icon>
+                <text class="level-text">{{ internalStudioLevel === 0 ? '国家级工作室' : '省级工作室' }}</text>
               </view>
               <view class="status-badge" v-if="profile.leaderName">
                 <text>{{ profile.leaderName }} 领衔</text>
@@ -160,8 +161,18 @@
         </view>
       </view>
 
-      <!-- Dynamics Tab (Tab 1) -->
-      <view class="content-wrapper dynamics-tab" v-if="currentTab === 1">
+      <!-- IntegraEdu Tab (Tab 1) -->
+      <view class="content-wrapper" v-if="currentTab === 1">
+        <StudioIntegraEdu :studioId="currentId" />
+      </view>
+
+      <!-- Question Tab (Tab 2) -->
+      <view class="content-wrapper" v-if="currentTab === 2">
+        <StudioQuestion :studioId="currentId" />
+      </view>
+
+      <!-- Dynamics Tab (Tab 3) -->
+      <view class="content-wrapper dynamics-tab" v-if="currentTab === 3">
         <view class="dynamics-list" v-if="studioNewsList.length > 0">
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
@@ -201,6 +212,8 @@ import { ref, onMounted, watch, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioProfileById, getStudioIntroArticles, getStudioNews } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
+import StudioIntegraEdu from "./compontes/StudioIntegraEdu.vue";
+import StudioQuestion from "./compontes/StudioQuestion.vue";
 
 const props = defineProps({
   studioId: [String, Number],
@@ -211,12 +224,14 @@ const props = defineProps({
 const internalStudioId = ref(null);
 const internalLevel = ref("");
 const internalStudioName = ref("");
+const internalStudioLevel = ref(null);
 
 onLoad((options) => {
   if (options.id) {
     internalStudioId.value = options.id;
     internalLevel.value = options.level ? decodeURIComponent(options.level) : "";
     internalStudioName.value = options.name ? decodeURIComponent(options.name) : "";
+    internalStudioLevel.value = options.studioLevel !== undefined ? parseInt(options.studioLevel) : null;
     if (options.tab) {
       currentTab.value = parseInt(options.tab);
     }
@@ -225,6 +240,8 @@ onLoad((options) => {
 
 const tabList = ref([
   { name: '工作室介绍' },
+  { name: '产教融合' },
+  { name: '问题咨询' },
   { name: '工作动态' }
 ]);
 const currentTab = ref(0);
@@ -321,7 +338,7 @@ const fetchIntroArticles = async () => {
 
 const handleTabChange = (item) => {
   currentTab.value = item.index;
-  if (currentTab.value === 1 && studioNewsList.value.length === 0) {
+  if (currentTab.value === 3 && studioNewsList.value.length === 0) {
     fetchStudioNews();
   }
 };
@@ -360,7 +377,7 @@ const goToWechat = (url) => {
 onMounted(() => {
   fetchProfile();
   fetchIntroArticles();
-  if (currentTab.value === 1) fetchStudioNews();
+  if (currentTab.value === 3) fetchStudioNews();
 });
 </script>
 
@@ -492,11 +509,11 @@ onMounted(() => {
     width: fit-content;
 
     &.national {
-      background: #ef4444;
+      background: rgba(255, 122, 0, 0.85);
     }
 
     &.provincial {
-      background: #3b82f6;
+      background: rgba(0, 122, 255, 0.85);
     }
   }
 
