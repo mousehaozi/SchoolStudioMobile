@@ -37,7 +37,12 @@
 				<view class="card-divider"></view>
 
 				<view class="rich-text-content">
-					<u-parse :content="processRichText(detail.contentHtml)"></u-parse>
+					<!-- #ifdef H5 -->
+					<view v-html="processRichText(detail.contentHtml)" v-if="detail.contentHtml"></view>
+					<!-- #endif -->
+					<!-- #ifndef H5 -->
+					<rich-text :nodes="processRichText(detail.contentHtml)" v-if="detail.contentHtml"></rich-text>
+					<!-- #endif -->
 				</view>
 			</view>
 		</view>
@@ -119,8 +124,29 @@ const getTags = (tagsStr) => {
 
 const processRichText = (html) => {
 	if (!html) return '内容加载中...';
-	return html.replace(/<img/gi,
-		'<img style="max-width:100%;height:auto;display:block;margin:20rpx 0;border-radius:12rpx;"');
+	const baseUrl = 'http://192.168.0.121:8080';
+	let content = html;
+
+	// 1. 处理图片自适应，并补全路径
+	content = content.replace(/<img[^>]*src=["']([^"']*)["'][^>]*>/gi, (match, src) => {
+		let fullSrc = src.startsWith('/api') ? baseUrl + src : src;
+		return `<img src="${fullSrc}" style="max-width:100%;height:auto;display:block;margin:20rpx 0;border-radius:12rpx;" />`;
+	});
+
+	// 2. 匹配并重写视频标签 (支持跨行匹配，并补全路径)
+	const videoRegex = /<video[^>]*>[\s\S]*?<source[^>]*src=["']([^"']*)["'][^>]*>[\s\S]*?<\/video>/gi;
+	content = content.replace(videoRegex, (match, src) => {
+		let fullSrc = src.startsWith('/api') ? baseUrl + src : src;
+		return `<video src="${fullSrc}" controls="controls" style="width:100%;height:auto;margin:10px 0;display:block;" poster=""></video>`;
+	});
+
+	// 3. 处理没有 source 标签但本身有 video src 的情况
+	content = content.replace(/<video[^>]*src=["']([^"']*)["'][^>]*>/gi, (match, src) => {
+		let fullSrc = src.startsWith('/api') ? baseUrl + src : src;
+		return `<video src="${fullSrc}" controls="controls" style="width:100%;height:auto;margin:10px 0;display:block;" poster=""></video>`;
+	});
+
+	return content;
 };
 </script>
 
