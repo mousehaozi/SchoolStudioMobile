@@ -161,18 +161,8 @@
         </view>
       </view>
 
-      <!-- IntegraEdu Tab (Tab 1) -->
-      <view class="content-wrapper" v-if="currentTab === 1">
-        <StudioIntegraEdu :studioId="currentId" />
-      </view>
-
-      <!-- Question Tab (Tab 2) -->
-      <view class="content-wrapper" v-if="currentTab === 2">
-        <StudioQuestion :studioId="currentId" />
-      </view>
-
-      <!-- Dynamics Tab (Tab 3) -->
-      <view class="content-wrapper dynamics-tab" v-if="currentTab === 3">
+      <!-- Dynamics Tab (Tab 1) -->
+      <view class="content-wrapper dynamics-tab" v-if="currentTab === 1">
         <view class="dynamics-list" v-if="studioNewsList.length > 0">
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
@@ -212,8 +202,6 @@ import { ref, onMounted, watch, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioProfileById, getStudioIntroArticles, getStudioNews } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
-import StudioIntegraEdu from "./compontes/StudioIntegraEdu.vue";
-import StudioQuestion from "./compontes/StudioQuestion.vue";
 
 const props = defineProps({
   studioId: [String, Number],
@@ -240,8 +228,6 @@ onLoad((options) => {
 
 const tabList = ref([
   { name: '工作室介绍' },
-  { name: '产教融合' },
-  { name: '问题咨询' },
   { name: '工作动态' }
 ]);
 const currentTab = ref(0);
@@ -338,7 +324,7 @@ const fetchIntroArticles = async () => {
 
 const handleTabChange = (item) => {
   currentTab.value = item.index;
-  if (currentTab.value === 3 && studioNewsList.value.length === 0) {
+  if (currentTab.value === 1 && studioNewsList.value.length === 0) {
     fetchStudioNews();
   }
 };
@@ -377,7 +363,7 @@ const goToWechat = (url) => {
 onMounted(() => {
   fetchProfile();
   fetchIntroArticles();
-  if (currentTab.value === 3) fetchStudioNews();
+  if (currentTab.value === 1) fetchStudioNews();
 });
 </script>
 
