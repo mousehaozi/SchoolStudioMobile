@@ -77,11 +77,9 @@
 
           <!-- Contact Us -->
           <view class="info-item">
-            <view class="label-row space-between">
-              <view class="label-left">
-                <u-icon name="phone-fill" color="#3B82F6" size="18"></u-icon>
-                <text class="info-label">联系我们</text>
-              </view>
+            <view class="label-row">
+              <u-icon name="phone-fill" color="#3B82F6" size="18"></u-icon>
+              <text class="info-label">联系我们</text>
             </view>
             <view class="contact-grid-modern" v-if="profile.contactUsParsed && profile.contactUsParsed.length > 0">
               <view class="contact-card-mini" v-for="(item, index) in profile.contactUsParsed" :key="index"
@@ -596,6 +594,24 @@ onMounted(() => {
     background: #f8fafc;
     padding: 16rpx 24rpx;
     border-radius: 12rpx;
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8rpx;
+    }
+
+    .follow-btn-inline {
+      display: flex;
+      align-items: center;
+      gap: 4rpx;
+      font-size: 20rpx;
+      color: #fff;
+      background-color: #3b82f6;
+      padding: 4rpx 12rpx;
+      border-radius: 8rpx;
+    }
 
     .name {
       font-size: 26rpx;
