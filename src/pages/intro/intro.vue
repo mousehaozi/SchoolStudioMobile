@@ -69,8 +69,8 @@
               <u-icon name="account-fill" color="#3B82F6" size="18"></u-icon>
               <text class="info-label">工作室领衔人</text>
             </view>
-            <text class="info-content highlight">{{ profile.leaderName || "暂无" }}</text>
-            <text class="info-desc">{{ profile.leaderIntro || "暂无" }}</text>
+            <view class="info-content highlight">{{ profile.leaderName || "暂无" }}</view>
+            <view class="info-desc" style="line-height: 1.5; word-break: break-all;">{{ profile.leaderIntro || "" }}</view>
           </view>
 
           <view class="divider"></view>
