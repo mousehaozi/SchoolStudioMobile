@@ -50,8 +50,8 @@
     "h5": {
         "title": "重工大劳模和工匠人才创新工作室",
         "router": {
-            "mode": "hash",
-            "base": "./"
+            "mode": "history",
+            "base": "/"
         }
     },
     /* 快应用特有相关 */
