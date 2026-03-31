@@ -7,12 +7,13 @@
     <view class="custom-header">
       <view class="header-left">
         <image src="/static/appLogo.png" class="logo-icon" mode="aspectFit"></image>
-        <text class="header-title">劳模工匠创新工作室</text>
+        <text class="header-title">{{ appTitle }}</text>
       </view>
     </view>
 
     <!-- Main Content Area -->
-    <scroll-view scroll-y class="main-scroll" :show-scrollbar="false" enhanced :bounces="true">
+    <scroll-view scroll-y class="main-scroll" :show-scrollbar="false" enhanced :bounces="true" :scroll-top="scrollTop"
+      scroll-with-animation @scroll="handleScroll">
       <!-- Banner Section (Full Width) -->
       <view class="banner-section full-width">
         <swiper class="banner-swiper" circular indicator-dots autoplay interval="5000" duration="1000"
@@ -86,11 +87,11 @@
               <u-icon name="home" size="14" color="#666"></u-icon>
               <text class="value">{{ studio.organizationName }}</text>
             </view>
-            <text class="intro-text">{{ studio.intro || '专注于技术创新，研发出多项国家级专利，推动行业技术进步。' }}</text>
+            <text class="intro-text">{{ studio.simpleIntro || '专注于技术创新，研发出多项国家级专利，推动行业技术进步。' }}</text>
 
             <!-- News Preview Section -->
-            <view class="news-preview" v-if="studio.news && studio.news.length > 0">
-              <view class="news-preview-item" v-for="news in studio.news" :key="news.id"
+            <view class="news-preview" v-if="studio.latestNews && studio.latestNews.length > 0">
+              <view class="news-preview-item" v-for="news in studio.latestNews" :key="news.id"
                 @click.stop="goToNewsDetail(news, studio)">
                 <view class="dot"></view>
                 <text class="news-preview-title">{{ news.title }}</text>
@@ -113,19 +114,28 @@
 
     <!-- Bottom Navigation -->
     <MyTabbar activePath="/pages/index/index" />
+
+    <!-- Back to Top Button -->
+    <view class="back-top" :class="{ 'show': showBackTop }" @click="backToTop">
+      <u-icon name="arrow-upward" color="#3b82f6" size="24"></u-icon>
+    </view>
   </view>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import { getStudioBanners, getStudios, getStudioNews } from "@/api/index.js";
+import { getStudioBanners, getStudios, getSystemConfigs } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
 
 const loading = ref(true);
 const bannerList = ref([]);
 const studioList = ref([]);
 const activeFilter = ref("all");
+const appTitle = ref("劳模工匠创新工作室");
+const scrollTop = ref(0);
+const oldScrollTop = ref(0);
+const showBackTop = ref(false);
 
 const filteredStudioList = computed(() => {
   if (activeFilter.value === "all") return studioList.value;
@@ -143,6 +153,23 @@ const fetchBanners = async () => {
   }
 };
 
+const fetchSystemConfigs = async () => {
+  try {
+    const res = await getSystemConfigs();
+    if (res.code === 0 || res.code === 200) {
+      const titleConfig = res.data.find(item => item.key === 'title');
+      if (titleConfig && titleConfig.value) {
+        appTitle.value = titleConfig.value;
+        uni.setNavigationBarTitle({
+          title: titleConfig.value,
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch system configs:", error);
+  }
+};
+
 const fetchStudiosData = async () => {
   try {
     const res = await getStudios();
@@ -150,31 +177,12 @@ const fetchStudiosData = async () => {
       const data = res.data.map((item) => ({
         ...item,
         level: item.studioLevel === 0 ? "国家级" : item.studioLevel === 1 ? "省级" : ""
-      }));
+      })).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       studioList.value = data;
-
-      // 为每个工作室获取最新的两条动态
-      fetchNewsForStudios(data);
     }
   } catch (error) {
     console.error("Failed to fetch studios:", error);
   }
-};
-
-const fetchNewsForStudios = async (list) => {
-  const promises = list.map(async (studio) => {
-    try {
-      const newsRes = await getStudioNews(studio.id, { page: 1, size: 2 });
-      if (newsRes.code === 0 || newsRes.code === 200) {
-        studio.news = newsRes.data.records || [];
-      }
-    } catch (e) {
-      console.error(`Failed to fetch news for studio ${studio.id}:`, e);
-    }
-  });
-  await Promise.all(promises);
-  // 必须重新赋值触发 Vue 响应式（或者在 map 中直接修改对象）
-  studioList.value = [...list];
 };
 
 onLoad(() => {
@@ -182,7 +190,7 @@ onLoad(() => {
     title: "劳模工匠创新工作室",
   });
 
-  Promise.all([fetchBanners(), fetchStudiosData()]).finally(() => {
+  Promise.all([fetchBanners(), fetchStudiosData(), fetchSystemConfigs()]).finally(() => {
     loading.value = false;
   });
 });
@@ -198,6 +206,23 @@ const onBannerClick = (item) => {
     });
     // #endif
   }
+};
+
+const handleScroll = (e) => {
+  oldScrollTop.value = e.detail.scrollTop;
+  if (e.detail.scrollTop > 400) {
+    showBackTop.value = true;
+  } else {
+    showBackTop.value = false;
+  }
+};
+
+const backToTop = () => {
+  // 解决 scrollTop 设值为 0 不触发视图更新的问题
+  scrollTop.value = oldScrollTop.value;
+  nextTick(() => {
+    scrollTop.value = 0;
+  });
 };
 
 const goToNewsDetail = (news, studio) => {
@@ -267,13 +292,13 @@ const goToDetail = (studio) => {
 }
 
 .logo-icon {
-  width: 44rpx;
-  height: 44rpx;
+  width: 38rpx;
+  height: 38rpx;
 }
 
 .header-title {
   font-family: "DingTalk JinBuTi", sans-serif;
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }
@@ -652,5 +677,38 @@ const goToDetail = (studio) => {
 
 .bottom-spacer {
   height: 150rpx;
+}
+
+/* Back Top Button */
+.back-top {
+  position: fixed;
+  right: 40rpx;
+  bottom: 180rpx;
+  width: 88rpx;
+  height: 88rpx;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid rgba(59, 130, 246, 0.1);
+  z-index: 1000;
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(10px);
+
+  &.show {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  &:active {
+    background-color: #f0f7ff;
+    transform: scale(0.9);
+  }
 }
 </style>

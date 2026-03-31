@@ -132,3 +132,12 @@ export const getStudioIntroArticleDetail = (studioId, id) => {
         method: "GET",
     });
 };
+/**
+ * 获取系统配置列表
+ */
+export const getSystemConfigs = () => {
+    return request({
+        url: "/system-configs",
+        method: "GET",
+    });
+};
