@@ -83,8 +83,8 @@ const handleWechatLogin = () => {
   const ua = navigator.userAgent.toLowerCase();
   const isWechat = /micromessenger/i.test(ua);
   if (isWechat) {
-    // 【根据要求修改】重定向地址设为指定域名下的 /login
-    const localUrl = 'https://studio.mouse.asia/pages/login/login';
+    // 动态获取当前页面所在的域名和路径，避免域名变动导致配置报错
+    const localUrl = window.location.origin + '/pages/login/login';
     const encodeUrl = encodeURIComponent(localUrl);
     const scope = 'snsapi_userinfo';
     const state = Math.random().toString(36).substring(2, 15);
