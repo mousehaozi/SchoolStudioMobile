@@ -141,3 +141,16 @@ export const getSystemConfigs = () => {
         method: "GET",
     });
 };
+
+/**
+ * 获取微信 JS-SDK 签名
+ */
+export const getJSSDKSignature = (url) => {
+    return request({
+        url: "/wechat/oa/js-sdk/signature",
+        method: "POST",
+        data: {
+            url
+        },
+    });
+};
