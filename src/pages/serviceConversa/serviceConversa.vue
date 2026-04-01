@@ -272,7 +272,7 @@ const initSocket = () => {
 		}
 
 		if (msgData.content) {
-			const isBot = msgData.senderRole === 'ADMIN';
+			const isBot = msgData.senderRole === 'ADMIN' || msgData.senderRole === 'SUPERADMIN';
 
 			// 4. If Admin sends a message, it implies they have read previous user messages
 			if (isBot) {
@@ -321,7 +321,7 @@ const fetchMessages = async (sid) => {
 			const records = res.data.records || [];
 			messages.value = records.map(m => ({
 				// Use senderRole: USER is本人, ADMIN is对方
-				role: m.senderRole === 'ADMIN' ? 'bot' : 'user',
+				role: (m.senderRole === 'ADMIN' || m.senderRole === 'SUPERADMIN') ? 'bot' : 'user',
 				content: m.content,
 				msgType: m.msgType,
 				readStatus: m.readStatus,
