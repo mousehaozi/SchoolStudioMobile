@@ -1,5 +1,5 @@
 <script>
-import { initWechatShare } from '@/utils/weixinShare.js'
+// import { initWechatShare } from '@/utils/weixinShare.js'
 
 export default {
   onLaunch: function () {
@@ -7,10 +7,10 @@ export default {
   },
   onShow: function () {
     console.log('App Show')
-    // 在页面显示时调用微信SDK初始化
-    setTimeout(() => {
-      initWechatShare()
-    }, 500)
+    // 在页面显示时调用微信SDK初始化 (暂时注释避开接口报错)
+    // setTimeout(() => {
+    //   initWechatShare()
+    // }, 500)
   },
   onHide: function () {
     console.log('App Hide')
