@@ -7,10 +7,7 @@
     <view class="custom-header">
       <view class="header-left">
         <image src="/static/appLogo.png" class="logo-icon" mode="aspectFit"></image>
-        <view class="header-text-group">
-          <text class="header-school">重庆工业职业技术大学</text>
-          <text class="header-title">{{ appTitle.replace('重庆工业职业技术大学', '') || '劳模工匠创新工作室' }}</text>
-        </view>
+        <text class="header-title">{{ appTitle }}</text>
       </view>
     </view>
 
@@ -274,7 +271,7 @@ const goToDetail = (studio) => {
 
 /* Header */
 .custom-header {
-  height: 110rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -291,33 +288,21 @@ const goToDetail = (studio) => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
 .logo-icon {
-  width: 72rpx;
-  height: 72rpx;
-}
-
-.header-text-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.header-school {
-  font-size: 26rpx;
-  color: #333;
-  font-weight: bold;
-  letter-spacing: 1rpx;
+  width: 44rpx;
+  height: 44rpx;
 }
 
 .header-title {
   font-family: "DingTalk JinBuTi", sans-serif;
-  font-size: 38rpx;
+  font-size: 30rpx;
   font-weight: bold;
-  color: #111;
-  letter-spacing: 2rpx;
+  color: #1a1a1a;
+  letter-spacing: 1rpx;
+  white-space: nowrap;
 }
 
 .header-right {
