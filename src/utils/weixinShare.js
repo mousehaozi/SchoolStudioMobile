@@ -42,7 +42,7 @@ export const initWechatShare = async (shareData = {}) => {
       wx.ready(() => {
         const defaultShareData = {
           title: shareData.title || '匠心重工·劳模工匠创新工作室', // 分享标题
-          desc: shareData.desc || '探索国家级、省市级劳模和工匠人才创新工作室的卓越成果', // 分享描述
+          desc: shareData.desc || '探索国家级、省级劳模工匠创新工作室的卓越成果', // 分享描述
           link: shareData.link || window.location.href, // 分享链接
           imgUrl: shareData.imgUrl || 'https://studio.mouse.asia/static/share_thumb.png', // 分享图标
         };
