@@ -83,8 +83,8 @@ const handleWechatLogin = () => {
   const ua = navigator.userAgent.toLowerCase();
   const isWechat = /micromessenger/i.test(ua);
   if (isWechat) {
-    // 动态获取当前页面所在的域名和路径，避免域名变动导致配置报错
-    const localUrl = window.location.origin + '/pages/login/login';
+    // 如果出现 10003，这里必须写死成微信后台填写的【网页授权域名】下的地址
+    const localUrl = 'https://studio.mouse.asia/pages/login/login';
     const encodeUrl = encodeURIComponent(localUrl);
     const scope = 'snsapi_userinfo';
     const state = Math.random().toString(36).substring(2, 15);
