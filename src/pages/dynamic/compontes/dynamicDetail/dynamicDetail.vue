@@ -87,34 +87,28 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import uIcon from "uview-plus/components/u-icon/u-icon.vue";
 import { formatDate } from "@/utils/formatDate.js";
 import { getStudioNewsDetail, studioNewsLike } from "@/api/index.js";
+import { initWechatShare } from "@/utils/weixinShare.js";
 
 const detailData = ref({});
 const loading = ref(true);
-const shareImage = ref(window.location.origin + "/static/appLogo.png");
+const shareImage = ref("/static/share_thumb.png");
 
-// 提取富文本中的第一张图片
-const extractFirstImg = (html) => {
-	const defaultLogo = window.location.origin + "/static/appLogo.png";
-	if (!html) return defaultLogo;
-	const imgReg = /<img.*?(?:>|\/>)/gi;
-	const srcReg = /src=[\'\"]?([^\'\"]*)[\'\"]?/i;
-	const arr = html.match(imgReg);
-	if (arr && arr.length > 0) {
-		const src = arr[0].match(srcReg);
-		if (src && src[1]) {
-			let url = src[1];
-			// 如果是相对路径，补全域名
-			if (url.startsWith("/")) {
-				return window.location.origin + url;
-			}
-			return url;
-		}
+const setupNewsShare = async () => {
+	if (!detailData.value?.id) return;
+
+	try {
+		await initWechatShare({
+			title: detailData.value.title || "工作动态详情",
+			desc: "",
+			imgUrl: shareImage.value || "/static/share_thumb.png",
+		});
+	} catch (error) {
+		console.error("Failed to init news WeChat share:", error);
 	}
-	return defaultLogo;
 };
 
 // 点赞
@@ -188,6 +182,10 @@ onLoad((options) => {
 	}
 });
 
+onShow(() => {
+	setupNewsShare();
+});
+
 const fetchDetail = async (sId, id) => {
 	uni.showLoading({
 		title: "加载中...",
@@ -196,12 +194,14 @@ const fetchDetail = async (sId, id) => {
 		const res = await getStudioNewsDetail(sId, id);
 		if (res.code === 200 || res.code === 0) {
 			detailData.value = res.data;
-			// 更新分享图片
-			shareImage.value = extractFirstImg(res.data.contentHtml);
+			shareImage.value = res.data.coverUrl || "/static/share_thumb.png";
 			// H5环境下动态修改标题，确保微信分享抓取的标题正确
+			// #ifdef H5
 			if (res.data.title) {
 				document.title = res.data.title;
 			}
+			// #endif
+			await setupNewsShare();
 		}
 	} catch (err) {
 		console.error("Fetch news detail failed", err);

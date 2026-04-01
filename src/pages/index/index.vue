@@ -124,9 +124,10 @@
 
 <script setup>
 import { ref, computed, nextTick } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import { getStudioBanners, getStudios, getSystemConfigs } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
+import { initWechatShare } from "@/utils/weixinShare.js";
 
 const loading = ref(true);
 const bannerList = ref([]);
@@ -136,6 +137,22 @@ const appTitle = ref("重庆工业职业技术大学劳模工匠创新工作室"
 const scrollTop = ref(0);
 const oldScrollTop = ref(0);
 const showBackTop = ref(false);
+
+const getHomeShareData = () => {
+  return {
+    title: appTitle.value || "重庆工业职业技术大学劳模工匠创新工作室",
+    desc: "探索国家级、省级劳模工匠创新工作室的卓越成果",
+    imgUrl: bannerList.value[0]?.imageUrl || "/static/share_thumb.png",
+  };
+};
+
+const setupHomeShare = async () => {
+  try {
+    await initWechatShare(getHomeShareData());
+  } catch (error) {
+    console.error("Failed to init home WeChat share:", error);
+  }
+};
 
 const filteredStudioList = computed(() => {
   if (activeFilter.value === "all") return studioList.value;
@@ -192,7 +209,12 @@ onLoad(() => {
 
   Promise.all([fetchBanners(), fetchStudiosData(), fetchSystemConfigs()]).finally(() => {
     loading.value = false;
+    setupHomeShare();
   });
+});
+
+onShow(() => {
+  setupHomeShare();
 });
 
 const onBannerClick = (item) => {

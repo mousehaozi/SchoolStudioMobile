@@ -143,14 +143,14 @@ export const getSystemConfigs = () => {
 };
 
 /**
- * 获取微信 JS-SDK 签名 (暂时注释停用)
+ * 获取微信 JS-SDK 签名
  */
-// export const getJSSDKSignature = (url) => {
-//     return request({
-//         url: "/wechat/oa/js-sdk/signature",
-//         method: "POST",
-//         data: {
-//             url
-//         },
-//     });
-// };
+export const getJSSDKSignature = (url) => {
+    return request({
+        url: "/wechat/oa/js-sdk/signature",
+        method: "POST",
+        data: {
+            url
+        },
+    });
+};
