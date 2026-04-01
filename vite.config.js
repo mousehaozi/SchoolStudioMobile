@@ -1,6 +1,9 @@
 import { defineConfig } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
 
+import fs from 'fs';
+import path from 'path';
+
 function serveWechatVerifyPlugin() {
   return {
     name: 'serve-wechat-verify',
@@ -13,6 +16,16 @@ function serveWechatVerifyPlugin() {
           next();
         }
       });
+    },
+    writeBundle(options) {
+      if (!options.dir) return;
+      const filePath = path.join(options.dir, 'MP_verify_rsUIbDjyLRUM9FbW.txt');
+      try {
+        fs.writeFileSync(filePath, 'rsUIbDjyLRUM9FbW');
+        console.log(`[WeChat Plugin] Wrote WeChat verification file to ${filePath}`);
+      } catch (err) {
+        console.error('[WeChat Plugin] Error writing verification file:', err);
+      }
     }
   };
 }
