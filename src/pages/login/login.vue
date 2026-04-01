@@ -9,7 +9,7 @@
           <image src="/static/appLogo.png" mode="aspectFit" class="logo"></image>
         </view>
         <text class="app-name">重庆工业职业技术大学</text>
-        <text class="app-slogan">成果转移转化创新工作室</text>
+        <text class="app-slogan">劳模工匠创新工作室</text>
       </view>
 
       <!-- Action Section -->
@@ -83,8 +83,8 @@ const handleWechatLogin = () => {
   const ua = navigator.userAgent.toLowerCase();
   const isWechat = /micromessenger/i.test(ua);
   if (isWechat) {
-    // 如果出现 10003，这里必须写死成微信后台填写的【网页授权域名】下的地址
-    const localUrl = 'https://studio.mouse.asia/pages/login/login';
+    // 动态获取当前页面的完整 URL 作为回调地址（忽略 query 参数，避免循环授权嵌套）
+    const localUrl = window.location.origin + window.location.pathname;
     const encodeUrl = encodeURIComponent(localUrl);
     const scope = 'snsapi_userinfo';
     const state = Math.random().toString(36).substring(2, 15);

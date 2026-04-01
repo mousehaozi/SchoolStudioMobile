@@ -7,7 +7,10 @@
     <view class="custom-header">
       <view class="header-left">
         <image src="/static/appLogo.png" class="logo-icon" mode="aspectFit"></image>
-        <text class="header-title">{{ appTitle }}</text>
+        <view class="header-text-group">
+          <text class="header-school">重庆工业职业技术大学</text>
+          <text class="header-title">{{ appTitle.replace('重庆工业职业技术大学', '') || '劳模工匠创新工作室' }}</text>
+        </view>
       </view>
     </view>
 
@@ -45,7 +48,7 @@
         <view class="list-title-header">
           <view class="left">
             <text class="title">创新工作室展示</text>
-            <text class="subtitle">探索国家级、省市级劳模和工匠人才创新工作室的卓越成果</text>
+            <text class="subtitle">探索国家级、省级劳模工匠创新工作室的卓越成果</text>
           </view>
         </view>
 
@@ -132,7 +135,7 @@ const loading = ref(true);
 const bannerList = ref([]);
 const studioList = ref([]);
 const activeFilter = ref("all");
-const appTitle = ref("劳模工匠创新工作室");
+const appTitle = ref("重庆工业职业技术大学劳模工匠创新工作室");
 const scrollTop = ref(0);
 const oldScrollTop = ref(0);
 const showBackTop = ref(false);
@@ -187,7 +190,7 @@ const fetchStudiosData = async () => {
 
 onLoad(() => {
   uni.setNavigationBarTitle({
-    title: "劳模工匠创新工作室",
+    title: "重庆工业职业技术大学劳模工匠创新工作室",
   });
 
   Promise.all([fetchBanners(), fetchStudiosData(), fetchSystemConfigs()]).finally(() => {
@@ -271,7 +274,7 @@ const goToDetail = (studio) => {
 
 /* Header */
 .custom-header {
-  height: 88rpx;
+  height: 110rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -288,19 +291,33 @@ const goToDetail = (studio) => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 16rpx;
 }
 
 .logo-icon {
-  width: 38rpx;
-  height: 38rpx;
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.header-text-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-school {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: bold;
+  letter-spacing: 1rpx;
 }
 
 .header-title {
   font-family: "DingTalk JinBuTi", sans-serif;
-  font-size: 30rpx;
+  font-size: 38rpx;
   font-weight: bold;
-  color: #333;
+  color: #111;
+  letter-spacing: 2rpx;
 }
 
 .header-right {
@@ -398,9 +415,9 @@ const goToDetail = (studio) => {
   padding: 30rpx 30rpx 10rpx;
 
   .title {
-    font-size: 42rpx;
+    font-size: 36rpx;
     font-weight: bold;
-    color: #1a1a1a;
+    color: #111;
     font-family: "DingTalk JinBuTi", sans-serif;
     letter-spacing: 1rpx;
   }
@@ -560,9 +577,9 @@ const goToDetail = (studio) => {
 
     .studio-name {
       flex: 1;
-      font-size: 34rpx;
+      font-size: 30rpx;
       font-weight: bold;
-      color: #1a1a1a;
+      color: #333;
       line-height: 1.4;
       padding-right: 20rpx;
     }
