@@ -34,7 +34,7 @@
 
                 <!-- Cover Image -->
                 <view class="image-wrapper" v-if="detailData.coverUrl">
-                    <image class="article-image" :src="detailData.coverUrl" mode="widthFix"></image>
+                    <image class="article-image" :src="getResourceUrl(detailData.coverUrl)" mode="widthFix"></image>
                 </view>
 
                 <!-- Content Section -->
@@ -54,6 +54,7 @@ import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { formatDate } from "@/utils/formatDate.js";
 import { getStudioIntroArticleDetail } from "@/api/index.js";
+import { getResourceHtml, getResourceUrl } from "@/utils/baseUrl.js";
 
 const detailData = ref({});
 const loading = ref(true);
@@ -61,7 +62,7 @@ const loading = ref(true);
 const processRichText = (html) => {
     if (!html) return "";
     // Enhance images in rich text
-    let content = html.replace(
+    let content = getResourceHtml(html).replace(
         /<img/gi,
         '<img style="max-width:100%;height:auto;display:block;margin:24rpx 0;border-radius:16rpx;box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);"'
     );

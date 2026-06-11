@@ -19,7 +19,7 @@
         <swiper class="banner-swiper" circular indicator-dots autoplay interval="5000" duration="1000"
           indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
           <swiper-item v-for="(item, index) in bannerList" :key="index" @click="onBannerClick(item)">
-            <image class="banner-image" :src="item.imageUrl || '/static/appLogo.png'" mode="aspectFill"></image>
+            <image class="banner-image" :src="getResourceUrl(item.imageUrl) || '/static/appLogo.png'" mode="aspectFill"></image>
           </swiper-item>
         </swiper>
       </view>
@@ -64,7 +64,7 @@
       <view class="studio-list" v-if="filteredStudioList.length > 0">
         <view v-for="studio in filteredStudioList" :key="studio.id" class="studio-card" @click="goToDetail(studio)">
           <view class="card-image-wrap">
-            <image :src="studio.iconUrl || '/static/appLogo.png'" class="card-image" mode="aspectFill"></image>
+            <image :src="getResourceUrl(studio.iconUrl) || '/static/appLogo.png'" class="card-image" mode="aspectFill"></image>
             <view class="level-tag" :class="studio.level === '国家级' ? 'national' : 'provincial'">
               <u-icon v-if="studio.level === '国家级'" name="star-fill" color="#ffffff" size="10"></u-icon>
               <u-icon v-else name="integral-fill" color="#ffffff" size="10"></u-icon>
@@ -128,6 +128,7 @@ import { onLoad, onShow } from "@dcloudio/uni-app";
 import { getStudioBanners, getStudios, getSystemConfigs } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
 import { initWechatShare } from "@/utils/weixinShare.js";
+import { getResourceUrl } from "@/utils/baseUrl.js";
 
 const loading = ref(true);
 const bannerList = ref([]);
@@ -142,7 +143,7 @@ const getHomeShareData = () => {
   return {
     title: appTitle.value || "重庆工业职业技术大学劳模工匠创新工作室",
     desc: "探索国家级、省级劳模工匠创新工作室的卓越成果",
-    imgUrl: bannerList.value[0]?.imageUrl || "/static/share_thumb.png",
+    imgUrl: getResourceUrl(bannerList.value[0]?.imageUrl) || "/static/share_thumb.png",
   };
 };
 

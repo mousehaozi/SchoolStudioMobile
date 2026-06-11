@@ -57,7 +57,7 @@
             <text class="card-title">简介</text>
           </view>
           <view class="intro-paragraph">
-            <u-parse :content="profile.contentHtml" v-if="profile.contentHtml"></u-parse>
+            <u-parse :content="processRichText(profile.contentHtml)" v-if="profile.contentHtml"></u-parse>
             <text v-else>暂无简介</text>
           </view>
         </view>
@@ -139,7 +139,7 @@
 
             <view class="gallery-content">
               <view class="gallery-image-wrapper">
-                <image class="gallery-image" :src="item.coverUrl" mode="aspectFill" lazy-load></image>
+                <image class="gallery-image" :src="getResourceUrl(item.coverUrl)" mode="aspectFill" lazy-load></image>
                 <view class="image-overlay">
                   <text class="overlay-tag">专题展示</text>
                 </view>
@@ -164,7 +164,7 @@
         <view class="dynamics-list" v-if="studioNewsList.length > 0">
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
-              <image :src="news.coverUrl || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>
+              <image :src="getResourceUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>
             </view>
             <view class="dynamic-content">
               <text class="dynamic-title">{{ news.title }}</text>
@@ -200,6 +200,7 @@ import { ref, onMounted, watch, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioProfileById, getStudioIntroArticles, getStudioNews } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
+import { getResourceHtml, getResourceUrl } from "@/utils/baseUrl.js";
 
 const props = defineProps({
   studioId: [String, Number],
@@ -252,7 +253,7 @@ const galleryList = ref([]);
 
 const processRichText = (html) => {
   if (!html) return "";
-  return html
+  return getResourceHtml(html)
     .replace(
       /<img/gi,
       '<img style="max-width:100%;height:auto;display:block;"'
@@ -272,7 +273,6 @@ const fetchProfile = async () => {
       let data = res.data || {};
       if (Array.isArray(data)) data = data[0] || {};
 
-      if (data.contentHtml) data.contentHtml = processRichText(data.contentHtml);
       data.orgStructureParsed = data.orgStructureParsed || [];
       data.contactUsParsed = data.contactUsParsed || [];
 

@@ -22,7 +22,7 @@
 			<view class="news-list" v-if="dynamics.length > 0">
 				<view class="news-item" v-for="(item, index) in dynamics" :key="index" @click="goToDetail(item)">
 					<view class="news-image-wrap">
-						<image :src="item.coverUrl || '/static/appLogo.png'" class="news-image" mode="aspectFill">
+						<image :src="getResourceUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" mode="aspectFill">
 						</image>
 					</view>
 					<view class="news-content">
@@ -81,6 +81,9 @@ import {
 import {
 	formatDate
 } from "@/utils/formatDate.js";
+import {
+	getResourceUrl
+} from "@/utils/baseUrl.js";
 
 const keyword = ref('');
 const dynamics = ref([]);

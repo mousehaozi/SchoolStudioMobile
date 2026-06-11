@@ -1,11 +1,6 @@
-// 根据环境切换baseURL，二选一
-// H5开发环境，因为配置了反向代理，所以直接用 /api 即可
-// const BASE_URL = "/api";
-// App/H5打包生产环境，必须写成服务器完整地址
-// const BASE_URL = "http://107.174.50.174:5001";
-import { baseUrl, imgBaseUrl } from "@/utils/baseUrl.js";
+import { imgBaseUrl } from "@/utils/baseUrl.js";
 
-const BASE_URL = baseUrl();
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const FILE_BASE_URL = imgBaseUrl();
 
 const request = (options) => {

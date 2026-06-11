@@ -18,7 +18,7 @@
         <view v-for="(item, index) in articleList" :key="index" class="article-card" @click="goToDetail(item)">
           <text class="article-title">{{ item.title }}</text>
           <view class="article-main">
-            <image v-if="item.coverUrl" :src="item.coverUrl" mode="aspectFill" class="article-cover"></image>
+            <image v-if="item.coverUrl" :src="getResourceUrl(item.coverUrl)" mode="aspectFill" class="article-cover"></image>
             <view class="article-content">
               <view class="article-desc">
                 <u-parse :content="processRichText(item.contentHtml)"></u-parse>
@@ -57,6 +57,7 @@ import { ref, onMounted } from 'vue';
 import { getIeArticle } from "@/api/integraEdu.js";
 import { getIeTopic } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
+import { getResourceUrl } from "@/utils/baseUrl.js";
 
 const props = defineProps({
   studioId: [String, Number]

@@ -45,7 +45,7 @@
 
 						<view class="message-row" :class="msg.role === 'user' ? 'user-row' : 'bot-row'">
 							<view class="avatar">
-								<image :src="msg.role === 'user' ? userAvatar : botAvatar" mode="aspectFill"></image>
+								<image :src="getResourceUrl(msg.role === 'user' ? userAvatar : botAvatar)" mode="aspectFill"></image>
 							</view>
 							<view class="msg-content">
 								<!-- Text Content -->
@@ -55,7 +55,7 @@
 								<!-- Image Content -->
 								<view v-else-if="msg.msgType === 'IMAGE'" class="image-bubble"
 									@click="previewImage(msg.content)">
-									<image :src="msg.content" mode="widthFix" class="chat-img"></image>
+									<image :src="getResourceUrl(msg.content)" mode="widthFix" class="chat-img"></image>
 								</view>
 								<!-- Read Status -->
 								<view v-if="msg.role === 'user' && index === lastUserMsgIndex" class="read-status"
@@ -120,6 +120,7 @@ import uIcon from "uview-plus/components/u-icon/u-icon.vue";
 import socket from "@/utils/ws.js";
 import {
 	wsBaseUrl,
+	getResourceUrl,
 } from "@/utils/baseUrl.js";
 import {
 	formatDate
@@ -465,7 +466,7 @@ const scrollToBottom = () => {
 
 const previewImage = (url) => {
 	uni.previewImage({
-		urls: [url]
+		urls: [getResourceUrl(url)]
 	});
 };
 const shouldShowTime = (msg, index) => {
