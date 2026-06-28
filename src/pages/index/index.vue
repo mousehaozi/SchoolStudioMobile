@@ -6,20 +6,48 @@
     <!-- Custom Header -->
     <view class="custom-header">
       <view class="header-left">
-        <image src="/static/appLogo.png" class="logo-icon" mode="aspectFit"></image>
+        <image
+          src="/static/appLogo.png"
+          class="logo-icon"
+          mode="aspectFit"
+        ></image>
         <text class="header-title">{{ appTitle }}</text>
       </view>
     </view>
 
     <!-- Main Content Area -->
-    <scroll-view scroll-y class="main-scroll" :show-scrollbar="false" enhanced :bounces="true" :scroll-top="scrollTop"
-      scroll-with-animation @scroll="handleScroll">
+    <scroll-view
+      scroll-y
+      class="main-scroll"
+      :show-scrollbar="false"
+      enhanced
+      :bounces="true"
+      :scroll-top="scrollTop"
+      scroll-with-animation
+      @scroll="handleScroll"
+    >
       <!-- Banner Section (Full Width) -->
       <view class="banner-section full-width">
-        <swiper class="banner-swiper" circular indicator-dots autoplay interval="5000" duration="1000"
-          indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
-          <swiper-item v-for="(item, index) in bannerList" :key="index" @click="onBannerClick(item)">
-            <image class="banner-image" :src="getResourceUrl(item.imageUrl) || '/static/appLogo.png'" mode="aspectFill"></image>
+        <swiper
+          class="banner-swiper"
+          circular
+          indicator-dots
+          autoplay
+          interval="5000"
+          duration="1000"
+          indicator-color="rgba(255, 255, 255, 0.4)"
+          indicator-active-color="#ffffff"
+        >
+          <swiper-item
+            v-for="(item, index) in bannerList"
+            :key="index"
+            @click="onBannerClick(item)"
+          >
+            <image
+              class="banner-image"
+              :src="getResourceUrl(item.imageUrl) || '/static/appLogo.png'"
+              mode="aspectFill"
+            ></image>
           </swiper-item>
         </swiper>
       </view>
@@ -28,16 +56,28 @@
       <view class="intro-section">
         <!-- Filter Section (Moved below banner) -->
         <view class="filter-bar">
-          <view class="filter-item" :class="{ active: activeFilter === 'all' }" @click="activeFilter = 'all'">
+          <view
+            class="filter-item"
+            :class="{ active: activeFilter === 'all' }"
+            @click="activeFilter = 'all'"
+          >
             <text>全部工作室</text>
           </view>
-          <view class="filter-item" :class="{ active: activeFilter === '国家级' }" @click="activeFilter = '国家级'">
+          <view
+            class="filter-item"
+            :class="{ active: activeFilter === '国家级' }"
+            @click="activeFilter = '国家级'"
+          >
             <view class="dot national"></view>
             <text>国家级</text>
           </view>
-          <view class="filter-item" :class="{ active: activeFilter === '省级' }" @click="activeFilter = '省级'">
+          <view
+            class="filter-item"
+            :class="{ active: activeFilter === '省级' }"
+            @click="activeFilter = '省级'"
+          >
             <view class="dot provincial"></view>
-            <text>省级</text>
+            <text>省市级</text>
           </view>
         </view>
 
@@ -45,14 +85,20 @@
         <view class="list-title-header">
           <view class="left">
             <text class="title">创新工作室展示</text>
-            <text class="subtitle">探索国家级、省级劳模工匠创新工作室的卓越成果</text>
+            <text class="subtitle"
+              >探索国家级、省级劳模工匠创新工作室的卓越成果</text
+            >
           </view>
         </view>
 
         <view class="list-stats-bar">
           <view class="stats-left">
             <view class="pulse-dot"></view>
-            <text class="count-text">为您找到 <text class="highlight">{{ filteredStudioList.length }}</text> 个工作室</text>
+            <text class="count-text"
+              >为您找到
+              <text class="highlight">{{ filteredStudioList.length }}</text>
+              个工作室</text
+            >
           </view>
           <view class="filter-indicator" v-if="activeFilter !== 'all'">
             <text>{{ activeFilter }}</text>
@@ -62,12 +108,34 @@
 
       <!-- Studio List -->
       <view class="studio-list" v-if="filteredStudioList.length > 0">
-        <view v-for="studio in filteredStudioList" :key="studio.id" class="studio-card" @click="goToDetail(studio)">
+        <view
+          v-for="studio in filteredStudioList"
+          :key="studio.id"
+          class="studio-card"
+          @click="goToDetail(studio)"
+        >
           <view class="card-image-wrap">
-            <image :src="getResourceUrl(studio.iconUrl) || '/static/appLogo.png'" class="card-image" mode="aspectFill"></image>
-            <view class="level-tag" :class="studio.level === '国家级' ? 'national' : 'provincial'">
-              <u-icon v-if="studio.level === '国家级'" name="star-fill" color="#ffffff" size="10"></u-icon>
-              <u-icon v-else name="integral-fill" color="#ffffff" size="10"></u-icon>
+            <image
+              :src="getResourceUrl(studio.iconUrl) || '/static/appLogo.png'"
+              class="card-image"
+              mode="aspectFill"
+            ></image>
+            <view
+              class="level-tag"
+              :class="studio.level === '国家级' ? 'national' : 'provincial'"
+            >
+              <u-icon
+                v-if="studio.level === '国家级'"
+                name="star-fill"
+                color="#ffffff"
+                size="10"
+              ></u-icon>
+              <u-icon
+                v-else
+                name="integral-fill"
+                color="#ffffff"
+                size="10"
+              ></u-icon>
               <text>{{ studio.level }}</text>
             </view>
           </view>
@@ -81,21 +149,33 @@
             <view class="info-row">
               <u-icon name="account" size="14" color="#666"></u-icon>
               <text class="label">领衔人：</text>
-              <text class="value">{{ studio.leaderName || '暂未设置' }}</text>
+              <text class="value">{{ studio.leaderName || "暂未设置" }}</text>
             </view>
             <view class="info-row" v-if="studio.organizationName">
               <u-icon name="home" size="14" color="#666"></u-icon>
               <text class="value">{{ studio.organizationName }}</text>
             </view>
-            <text class="intro-text">{{ studio.simpleIntro || '专注于技术创新，研发出多项国家级专利，推动行业技术进步。' }}</text>
+            <text class="intro-text">{{
+              studio.simpleIntro ||
+              "专注于技术创新，研发出多项国家级专利，推动行业技术进步。"
+            }}</text>
 
             <!-- News Preview Section -->
-            <view class="news-preview" v-if="studio.latestNews && studio.latestNews.length > 0">
-              <view class="news-preview-item" v-for="news in studio.latestNews" :key="news.id"
-                @click.stop="goToNewsDetail(news, studio)">
+            <view
+              class="news-preview"
+              v-if="studio.latestNews && studio.latestNews.length > 0"
+            >
+              <view
+                class="news-preview-item"
+                v-for="news in studio.latestNews"
+                :key="news.id"
+                @click.stop="goToNewsDetail(news, studio)"
+              >
                 <view class="dot"></view>
                 <text class="news-preview-title">{{ news.title }}</text>
-                <text class="news-preview-date">{{ formatDate(news.publishedAt, 'MM-DD') }}</text>
+                <text class="news-preview-date">{{
+                  formatDate(news.publishedAt, "MM-DD")
+                }}</text>
               </view>
             </view>
           </view>
@@ -104,7 +184,11 @@
 
       <!-- Empty State -->
       <view class="empty-state" v-else>
-        <image src="/static/img/index/home.webp" class="empty-icon" mode="widthFix"></image>
+        <image
+          src="/static/img/index/home.webp"
+          class="empty-icon"
+          mode="widthFix"
+        ></image>
         <text class="empty-text">该分类下暂无工作室</text>
       </view>
 
@@ -116,7 +200,7 @@
     <MyTabbar activePath="/pages/index/index" />
 
     <!-- Back to Top Button -->
-    <view class="back-top" :class="{ 'show': showBackTop }" @click="backToTop">
+    <view class="back-top" :class="{ show: showBackTop }" @click="backToTop">
       <u-icon name="arrow-upward" color="#3b82f6" size="24"></u-icon>
     </view>
   </view>
@@ -143,7 +227,9 @@ const getHomeShareData = () => {
   return {
     title: appTitle.value || "重庆工业职业技术大学劳模工匠创新工作室",
     desc: "探索国家级、省级劳模工匠创新工作室的卓越成果",
-    imgUrl: getResourceUrl(bannerList.value[0]?.imageUrl) || "/static/share_thumb.png",
+    imgUrl:
+      getResourceUrl(bannerList.value[0]?.imageUrl) ||
+      "/static/share_thumb.png",
   };
 };
 
@@ -157,7 +243,7 @@ const setupHomeShare = async () => {
 
 const filteredStudioList = computed(() => {
   if (activeFilter.value === "all") return studioList.value;
-  return studioList.value.filter(s => s.level === activeFilter.value);
+  return studioList.value.filter((s) => s.level === activeFilter.value);
 });
 
 const fetchBanners = async () => {
@@ -175,7 +261,7 @@ const fetchSystemConfigs = async () => {
   try {
     const res = await getSystemConfigs();
     if (res.code === 0 || res.code === 200) {
-      const titleConfig = res.data.find(item => item.key === 'title');
+      const titleConfig = res.data.find((item) => item.key === "title");
       if (titleConfig && titleConfig.value) {
         appTitle.value = titleConfig.value;
         uni.setNavigationBarTitle({
@@ -192,10 +278,17 @@ const fetchStudiosData = async () => {
   try {
     const res = await getStudios();
     if (res.code === 0 || res.code === 200) {
-      const data = res.data.map((item) => ({
-        ...item,
-        level: item.studioLevel === 0 ? "国家级" : item.studioLevel === 1 ? "省级" : ""
-      })).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+      const data = res.data
+        .map((item) => ({
+          ...item,
+          level:
+            item.studioLevel === 0
+              ? "国家级"
+              : item.studioLevel === 1
+                ? "省级"
+                : "",
+        }))
+        .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       studioList.value = data;
     }
   } catch (error) {
@@ -208,7 +301,11 @@ onLoad(() => {
     title: "重庆工业职业技术大学劳模工匠创新工作室",
   });
 
-  Promise.all([fetchBanners(), fetchStudiosData(), fetchSystemConfigs()]).finally(() => {
+  Promise.all([
+    fetchBanners(),
+    fetchStudiosData(),
+    fetchSystemConfigs(),
+  ]).finally(() => {
     loading.value = false;
     setupHomeShare();
   });
@@ -250,13 +347,13 @@ const backToTop = () => {
 
 const goToNewsDetail = (news, studio) => {
   uni.navigateTo({
-    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}&tab=1`
+    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}&tab=1`,
   });
 };
 
 const goToDetail = (studio) => {
   uni.navigateTo({
-    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}`
+    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}`,
   });
 };
 
@@ -346,7 +443,11 @@ const goToDetail = (studio) => {
 
 /* Intro Section Group */
 .intro-section {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.7) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(240, 249, 255, 0.7) 100%
+  );
   backdrop-filter: blur(20px);
   margin-bottom: 20rpx;
   padding-bottom: 10rpx;
@@ -679,7 +780,6 @@ const goToDetail = (studio) => {
     }
   }
 }
-
 
 .empty-state {
   display: flex;
