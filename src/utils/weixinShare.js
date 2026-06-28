@@ -1,7 +1,7 @@
 import { getJSSDKSignature } from '@/api/index.js';
 
 const DEFAULT_SHARE_TITLE = '匠心重工·劳模工匠创新工作室';
-const DEFAULT_SHARE_DESC = '探索国家级、省级劳模工匠创新工作室的卓越成果';
+const DEFAULT_SHARE_DESC = '探索国家级、省市级劳模工匠创新工作室的卓越成果';
 const DEFAULT_SHARE_IMAGE = '/static/share_thumb.png';
 
 let latestShareTaskId = 0;

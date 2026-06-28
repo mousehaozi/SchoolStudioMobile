@@ -41,7 +41,7 @@
                 :class="internalStudioLevel === 0 ? 'national' : 'provincial'">
                 <u-icon :name="internalStudioLevel === 0 ? 'star-fill' : 'integral-fill'" color="#ffffff"
                   size="14"></u-icon>
-                <text class="level-text">{{ internalStudioLevel === 0 ? '国家级工作室' : '省级工作室' }}</text>
+                <text class="level-text">{{ internalStudioLevel === 0 ? '国家级工作室' : '省市级工作室' }}</text>
               </view>
               <view class="status-badge" v-if="profile.leaderName">
                 <text>{{ profile.leaderName }} 领衔</text>
