@@ -73,8 +73,8 @@
           </view>
           <view
             class="filter-item"
-            :class="{ active: activeFilter === '省级' }"
-            @click="activeFilter = '省级'"
+            :class="{ active: activeFilter === '省市级' }"
+            @click="activeFilter = '省市级'"
           >
             <view class="dot provincial"></view>
             <text>省市级</text>
