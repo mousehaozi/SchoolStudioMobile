@@ -86,7 +86,7 @@
           <view class="left">
             <text class="title">创新工作室展示</text>
             <text class="subtitle"
-              >探索国家级、省级劳模工匠创新工作室的卓越成果</text
+              >探索国家级、省市级劳模工匠创新工作室的卓越成果</text
             >
           </view>
         </view>
@@ -226,7 +226,7 @@ const showBackTop = ref(false);
 const getHomeShareData = () => {
   return {
     title: appTitle.value || "重庆工业职业技术大学劳模工匠创新工作室",
-    desc: "探索国家级、省级劳模工匠创新工作室的卓越成果",
+    desc: "探索国家级、省市级劳模工匠创新工作室的卓越成果",
     imgUrl:
       getResourceUrl(bannerList.value[0]?.imageUrl) ||
       "/static/share_thumb.png",
@@ -285,7 +285,7 @@ const fetchStudiosData = async () => {
             item.studioLevel === 0
               ? "国家级"
               : item.studioLevel === 1
-                ? "省级"
+                ? "省市级"
                 : "",
         }))
         .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
