@@ -165,7 +165,7 @@
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
               <!-- #ifdef H5 -->
-              <img :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" referrerpolicy="no-referrer" />
+              <img referrerpolicy="no-referrer" :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" />
               <!-- #endif -->
               <!-- #ifndef H5 -->
               <image :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>

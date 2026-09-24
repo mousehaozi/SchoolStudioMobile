@@ -150,7 +150,7 @@ const processRichText = (html) => {
 		const noReferrer = /(^|\.)(qpic|qlogo)\.cn\//i.test(fullSrc)
 			? ' referrerpolicy="no-referrer"'
 			: "";
-		return `<img src="${fullSrc}"${noReferrer} style="max-width:100%;height:auto;display:block;margin:10px 0;" />`;
+		return `<img${noReferrer} src="${fullSrc}" style="max-width:100%;height:auto;display:block;margin:10px 0;" />`;
 	});
 
 	// 2. 匹配并重写视频标签 (支持跨行匹配，并补全路径)

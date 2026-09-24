@@ -23,7 +23,7 @@
 				<view class="news-item" v-for="(item, index) in dynamics" :key="index" @click="goToDetail(item)">
 					<view class="news-image-wrap">
 						<!-- #ifdef H5 -->
-						<img :src="getNewsImageUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" referrerpolicy="no-referrer" />
+						<img referrerpolicy="no-referrer" :src="getNewsImageUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" />
 						<!-- #endif -->
 						<!-- #ifndef H5 -->
 						<image :src="getNewsImageUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" mode="aspectFill"></image>
