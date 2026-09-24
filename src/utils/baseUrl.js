@@ -79,6 +79,16 @@ export function getResourceUrl(url) {
 }
 
 /**
+ * 微信图片使用 HTTPS，避免在 HTTPS 页面上被浏览器拦截
+ */
+export function getNewsImageUrl(url) {
+	const resourceUrl = getResourceUrl(url);
+	return typeof resourceUrl === "string"
+		? resourceUrl.replace(/^http:\/\/([^/]*\.(?:qpic|qlogo)\.cn)(?=\/|$)/i, "https://$1")
+		: resourceUrl;
+}
+
+/**
  * 补全富文本中的图片、视频和 source 资源地址
  */
 export function getResourceHtml(html) {

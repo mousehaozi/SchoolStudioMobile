@@ -164,7 +164,12 @@
         <view class="dynamics-list" v-if="studioNewsList.length > 0">
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
-              <image :src="getResourceUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>
+              <!-- #ifdef H5 -->
+              <img :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" referrerpolicy="no-referrer" />
+              <!-- #endif -->
+              <!-- #ifndef H5 -->
+              <image :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>
+              <!-- #endif -->
             </view>
             <view class="dynamic-content">
               <text class="dynamic-title">{{ news.title }}</text>
@@ -200,7 +205,7 @@ import { ref, onMounted, watch, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioProfileById, getStudioIntroArticles, getStudioNews } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
-import { getResourceHtml, getResourceUrl } from "@/utils/baseUrl.js";
+import { getResourceHtml, getResourceUrl, getNewsImageUrl } from "@/utils/baseUrl.js";
 
 const props = defineProps({
   studioId: [String, Number],
@@ -730,6 +735,7 @@ onMounted(() => {
       width: 100%;
       height: 100%;
       border-radius: 16rpx;
+      object-fit: cover;
     }
   }
 
