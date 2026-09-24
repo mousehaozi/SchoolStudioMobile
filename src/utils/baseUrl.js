@@ -48,11 +48,21 @@ export function wsBaseUrl(path = "/ws") {
  */
 export function getResourceUrl(url) {
 	if (!url || typeof url !== "string") return url;
-	if (ABSOLUTE_URL_RE.test(url) || SPECIAL_URL_RE.test(url)) return url;
+	if (SPECIAL_URL_RE.test(url)) return url;
+
+	let normalizedUrl = url;
+	if (ABSOLUTE_URL_RE.test(url)) {
+		const fileUrlMatch = url.match(
+			/^(?:https?:)?\/\/[^/]+(\/(?:api\/v1\/files|files)\/[^?#]*)([?#].*)?$/i
+		);
+		if (!fileUrlMatch) return url;
+		normalizedUrl = `${fileUrlMatch[1]}${fileUrlMatch[2] || ""}`;
+	}
+
 	if (url.startsWith("/static/")) return url;
 
 	const base = RESOURCE_BASE_URL.replace(/\/+$/, "");
-	const path = url.startsWith("/") ? url : `/${url}`;
+	const path = normalizedUrl.startsWith("/") ? normalizedUrl : `/${normalizedUrl}`;
 	const baseMatch = base.match(/^(https?:\/\/[^/]+)(\/.*)?$/i);
 	const baseOrigin = baseMatch ? baseMatch[1] : "";
 	const basePath = baseMatch ? (baseMatch[2] || "") : base;
