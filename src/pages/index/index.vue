@@ -347,7 +347,7 @@ const backToTop = () => {
 
 const goToNewsDetail = (news, studio) => {
   uni.navigateTo({
-    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}&tab=1`,
+    url: `/pages/intro/intro?id=${studio.id}&name=${encodeURIComponent(studio.name)}&level=${encodeURIComponent(studio.level)}&studioLevel=${studio.studioLevel}&tab=2`,
   });
 };
 

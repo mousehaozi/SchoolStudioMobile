@@ -128,8 +128,11 @@
           </view>
         </view>
 
-        <!-- Mock Gallery Sections -->
-        <view class="gallery-section">
+      </view>
+
+      <!-- Gallery Tab (Tab 1) -->
+      <view class="content-wrapper" v-if="currentTab === 1">
+        <view class="gallery-section" v-if="galleryList.length > 0">
           <view class="card gallery-card" v-for="(item, index) in galleryList" :key="item.id"
             @click="goToArticleDetail(item)">
             <view class="card-header">
@@ -157,10 +160,13 @@
             </view>
           </view>
         </view>
+        <view class="empty-state" v-else>
+          <text>暂无主题图墙</text>
+        </view>
       </view>
 
-      <!-- Dynamics Tab (Tab 1) -->
-      <view class="content-wrapper dynamics-tab" v-if="currentTab === 1">
+      <!-- Dynamics Tab (Tab 2) -->
+      <view class="content-wrapper dynamics-tab" v-if="currentTab === 2">
         <view class="dynamics-list" v-if="studioNewsList.length > 0">
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
@@ -232,6 +238,7 @@ onLoad((options) => {
 
 const tabList = ref([
   { name: '工作室介绍' },
+  { name: '主题图墙' },
   { name: '工作动态' }
 ]);
 const currentTab = ref(0);
@@ -327,7 +334,7 @@ const fetchIntroArticles = async () => {
 
 const handleTabChange = (item) => {
   currentTab.value = item.index;
-  if (currentTab.value === 1 && studioNewsList.value.length === 0) {
+  if (currentTab.value === 2 && studioNewsList.value.length === 0) {
     fetchStudioNews();
   }
 };
@@ -366,7 +373,7 @@ const goToWechat = (url) => {
 onMounted(() => {
   fetchProfile();
   fetchIntroArticles();
-  if (currentTab.value === 1) fetchStudioNews();
+  if (currentTab.value === 2) fetchStudioNews();
 });
 </script>
 
