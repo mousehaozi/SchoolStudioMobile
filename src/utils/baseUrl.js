@@ -59,6 +59,13 @@ export function getResourceUrl(url) {
 		normalizedUrl = `${fileUrlMatch[1]}${fileUrlMatch[2] || ""}`;
 	}
 
+	const filePathMatch = normalizedUrl.match(
+		/(?:^|\/)((?:api\/v1\/files|files)\/[^?#]*)([?#].*)?$/i
+	);
+	if (filePathMatch) {
+		normalizedUrl = `/${filePathMatch[1]}${filePathMatch[2] || ""}`;
+	}
+
 	if (url.startsWith("/static/")) return url;
 
 	const base = RESOURCE_BASE_URL.replace(/\/+$/, "");
