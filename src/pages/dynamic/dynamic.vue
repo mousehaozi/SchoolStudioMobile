@@ -22,8 +22,12 @@
 			<view class="news-list" v-if="dynamics.length > 0">
 				<view class="news-item" v-for="(item, index) in dynamics" :key="index" @click="goToDetail(item)">
 					<view class="news-image-wrap">
-						<image :src="getResourceUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" mode="aspectFill">
-						</image>
+						<!-- #ifdef H5 -->
+						<img referrerpolicy="no-referrer" :src="getNewsImageUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" />
+						<!-- #endif -->
+						<!-- #ifndef H5 -->
+						<image :src="getNewsImageUrl(item.coverUrl) || '/static/appLogo.png'" class="news-image" mode="aspectFill"></image>
+						<!-- #endif -->
 					</view>
 					<view class="news-content">
 						<view class="title-wrap">
@@ -82,7 +86,7 @@ import {
 	formatDate
 } from "@/utils/formatDate.js";
 import {
-	getResourceUrl
+	getNewsImageUrl
 } from "@/utils/baseUrl.js";
 
 const keyword = ref('');
@@ -261,6 +265,7 @@ const goToDetail = (item) => {
 	.news-image {
 		width: 100%;
 		height: 100%;
+		object-fit: cover;
 	}
 
 	.date-badge {

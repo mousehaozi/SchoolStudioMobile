@@ -41,7 +41,7 @@
                 :class="internalStudioLevel === 0 ? 'national' : 'provincial'">
                 <u-icon :name="internalStudioLevel === 0 ? 'star-fill' : 'integral-fill'" color="#ffffff"
                   size="14"></u-icon>
-                <text class="level-text">{{ internalStudioLevel === 0 ? '国家级工作室' : '省级工作室' }}</text>
+                <text class="level-text">{{ internalStudioLevel === 0 ? '国家级工作室' : '省市级工作室' }}</text>
               </view>
               <view class="status-badge" v-if="profile.leaderName">
                 <text>{{ profile.leaderName }} 领衔</text>
@@ -128,8 +128,11 @@
           </view>
         </view>
 
-        <!-- Mock Gallery Sections -->
-        <view class="gallery-section">
+      </view>
+
+      <!-- Gallery Tab (Tab 1) -->
+      <view class="content-wrapper" v-if="currentTab === 1">
+        <view class="gallery-section" v-if="galleryList.length > 0">
           <view class="card gallery-card" v-for="(item, index) in galleryList" :key="item.id"
             @click="goToArticleDetail(item)">
             <view class="card-header">
@@ -157,14 +160,22 @@
             </view>
           </view>
         </view>
+        <view class="empty-state" v-else>
+          <text>暂无主题图墙</text>
+        </view>
       </view>
 
-      <!-- Dynamics Tab (Tab 1) -->
-      <view class="content-wrapper dynamics-tab" v-if="currentTab === 1">
+      <!-- Dynamics Tab (Tab 2) -->
+      <view class="content-wrapper dynamics-tab" v-if="currentTab === 2">
         <view class="dynamics-list" v-if="studioNewsList.length > 0">
           <view class="dynamic-item" v-for="news in studioNewsList" :key="news.id" @click="goToNewsDetail(news)">
             <view class="dynamic-image-wrap">
-              <image :src="getResourceUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>
+              <!-- #ifdef H5 -->
+              <img referrerpolicy="no-referrer" :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" />
+              <!-- #endif -->
+              <!-- #ifndef H5 -->
+              <image :src="getNewsImageUrl(news.coverUrl) || '/static/appLogo.png'" class="dynamic-image" mode="aspectFill"></image>
+              <!-- #endif -->
             </view>
             <view class="dynamic-content">
               <text class="dynamic-title">{{ news.title }}</text>
@@ -200,7 +211,7 @@ import { ref, onMounted, watch, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getStudioProfileById, getStudioIntroArticles, getStudioNews } from "@/api/index.js";
 import { formatDate } from "@/utils/formatDate.js";
-import { getResourceHtml, getResourceUrl } from "@/utils/baseUrl.js";
+import { getResourceHtml, getResourceUrl, getNewsImageUrl } from "@/utils/baseUrl.js";
 
 const props = defineProps({
   studioId: [String, Number],
@@ -227,6 +238,7 @@ onLoad((options) => {
 
 const tabList = ref([
   { name: '工作室介绍' },
+  { name: '主题图墙' },
   { name: '工作动态' }
 ]);
 const currentTab = ref(0);
@@ -322,7 +334,7 @@ const fetchIntroArticles = async () => {
 
 const handleTabChange = (item) => {
   currentTab.value = item.index;
-  if (currentTab.value === 1 && studioNewsList.value.length === 0) {
+  if (currentTab.value === 2 && studioNewsList.value.length === 0) {
     fetchStudioNews();
   }
 };
@@ -361,7 +373,7 @@ const goToWechat = (url) => {
 onMounted(() => {
   fetchProfile();
   fetchIntroArticles();
-  if (currentTab.value === 1) fetchStudioNews();
+  if (currentTab.value === 2) fetchStudioNews();
 });
 </script>
 
@@ -730,6 +742,7 @@ onMounted(() => {
       width: 100%;
       height: 100%;
       border-radius: 16rpx;
+      object-fit: cover;
     }
   }
 

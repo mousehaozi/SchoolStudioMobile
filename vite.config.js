@@ -1,17 +1,17 @@
 import { defineConfig, loadEnv } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
 
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 function serveWechatVerifyPlugin() {
   return {
-    name: 'serve-wechat-verify',
+    name: "serve-wechat-verify",
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (req.url === '/MP_verify_rsUIbDjyLRUM9FbW.txt') {
-          res.setHeader('Content-Type', 'text/plain');
-          res.end('rsUIbDjyLRUM9FbW');
+        if (req.url === "/MP_verify_rsUIbDjyLRUM9FbW.txt") {
+          res.setHeader("Content-Type", "text/plain");
+          res.end("rsUIbDjyLRUM9FbW");
         } else {
           next();
         }
@@ -19,14 +19,16 @@ function serveWechatVerifyPlugin() {
     },
     writeBundle(options) {
       if (!options.dir) return;
-      const filePath = path.join(options.dir, 'MP_verify_rsUIbDjyLRUM9FbW.txt');
+      const filePath = path.join(options.dir, "MP_verify_rsUIbDjyLRUM9FbW.txt");
       try {
-        fs.writeFileSync(filePath, 'rsUIbDjyLRUM9FbW');
-        console.log(`[WeChat Plugin] Wrote WeChat verification file to ${filePath}`);
+        fs.writeFileSync(filePath, "rsUIbDjyLRUM9FbW");
+        console.log(
+          `[WeChat Plugin] Wrote WeChat verification file to ${filePath}`,
+        );
       } catch (err) {
-        console.error('[WeChat Plugin] Error writing verification file:', err);
+        console.error("[WeChat Plugin] Error writing verification file:", err);
       }
-    }
+    },
   };
 }
 
@@ -36,6 +38,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [uni(), serveWechatVerifyPlugin()],
+    base: "/studio-mobile",
     server: {
       host: "0.0.0.0",
       port: 8081,

@@ -48,20 +48,51 @@ export function wsBaseUrl(path = "/ws") {
  */
 export function getResourceUrl(url) {
 	if (!url || typeof url !== "string") return url;
-	if (ABSOLUTE_URL_RE.test(url) || SPECIAL_URL_RE.test(url)) return url;
+	if (SPECIAL_URL_RE.test(url)) return url;
+
+	let normalizedUrl = url;
+	if (ABSOLUTE_URL_RE.test(url)) {
+		const fileUrlMatch = url.match(
+			/^(?:https?:)?\/\/[^/]+(\/(?:api\/v1\/files|files)\/[^?#]*)([?#].*)?$/i
+		);
+		if (!fileUrlMatch) return url;
+		normalizedUrl = `${fileUrlMatch[1]}${fileUrlMatch[2] || ""}`;
+	}
+
+	const filePathMatch = normalizedUrl.match(
+		/(?:^|\/)((?:api\/v1\/files|files)\/[^?#]*)([?#].*)?$/i
+	);
+	if (filePathMatch) {
+		normalizedUrl = `/${filePathMatch[1]}${filePathMatch[2] || ""}`;
+	}
+
 	if (url.startsWith("/static/")) return url;
 
 	const base = RESOURCE_BASE_URL.replace(/\/+$/, "");
-	const path = url.startsWith("/") ? url : `/${url}`;
+	const path = normalizedUrl.startsWith("/") ? normalizedUrl : `/${normalizedUrl}`;
 	const baseMatch = base.match(/^(https?:\/\/[^/]+)(\/.*)?$/i);
 	const baseOrigin = baseMatch ? baseMatch[1] : "";
 	const basePath = baseMatch ? (baseMatch[2] || "") : base;
+
+	if (basePath !== "/api" && basePath.endsWith("/api") && /^\/api(?:\/|$)/.test(path)) {
+		return `${baseOrigin}${basePath}${path.slice(4)}`;
+	}
 
 	if (/^\/api(?:\/|$)/.test(basePath) && /^\/api(?:\/|$)/.test(path)) {
 		return `${baseOrigin}${path}`;
 	}
 
 	return `${base}${path}`;
+}
+
+/**
+ * 微信图片使用 HTTPS，避免在 HTTPS 页面上被浏览器拦截
+ */
+export function getNewsImageUrl(url) {
+	const resourceUrl = getResourceUrl(url);
+	return typeof resourceUrl === "string"
+		? resourceUrl.replace(/^http:\/\/([^/]*\.(?:qpic|qlogo)\.cn)(?=\/|$)/i, "https://$1")
+		: resourceUrl;
 }
 
 /**

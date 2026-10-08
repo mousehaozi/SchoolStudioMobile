@@ -92,7 +92,7 @@ import uIcon from "uview-plus/components/u-icon/u-icon.vue";
 import { formatDate } from "@/utils/formatDate.js";
 import { getStudioNewsDetail, studioNewsLike } from "@/api/index.js";
 import { initWechatShare } from "@/utils/weixinShare.js";
-import { getResourceHtml, getResourceUrl } from "@/utils/baseUrl.js";
+import { getResourceHtml, getResourceUrl, getNewsImageUrl } from "@/utils/baseUrl.js";
 
 const detailData = ref({});
 const loading = ref(true);
@@ -146,8 +146,11 @@ const processRichText = (html) => {
 
 	// 1. 处理图片自适应，并补全路径
 	content = content.replace(/<img[^>]*src=["']([^"']*)["'][^>]*>/gi, (match, src) => {
-		let fullSrc = getResourceUrl(src);
-		return `<img src="${fullSrc}" style="max-width:100%;height:auto;display:block;margin:10px 0;" />`;
+		let fullSrc = getNewsImageUrl(src);
+		const noReferrer = /(^|\.)(qpic|qlogo)\.cn\//i.test(fullSrc)
+			? ' referrerpolicy="no-referrer"'
+			: "";
+		return `<img${noReferrer} src="${fullSrc}" style="max-width:100%;height:auto;display:block;margin:10px 0;" />`;
 	});
 
 	// 2. 匹配并重写视频标签 (支持跨行匹配，并补全路径)
@@ -194,7 +197,7 @@ const fetchDetail = async (sId, id) => {
 		const res = await getStudioNewsDetail(sId, id);
 		if (res.code === 200 || res.code === 0) {
 			detailData.value = res.data;
-			shareImage.value = getResourceUrl(res.data.coverUrl) || "/static/share_thumb.png";
+			shareImage.value = getNewsImageUrl(res.data.coverUrl) || "/static/share_thumb.png";
 			// H5环境下动态修改标题，确保微信分享抓取的标题正确
 			// #ifdef H5
 			if (res.data.title) {

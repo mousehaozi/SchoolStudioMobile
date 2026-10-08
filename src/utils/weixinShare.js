@@ -1,7 +1,10 @@
 import { getJSSDKSignature } from '@/api/index.js';
 
+// 暂时禁用公众号 JS-SDK，避免服务器 IP 未加入公众号白名单时弹出签名错误。
+const ENABLE_WECHAT_JS_SDK = false;
+
 const DEFAULT_SHARE_TITLE = '匠心重工·劳模工匠创新工作室';
-const DEFAULT_SHARE_DESC = '探索国家级、省级劳模工匠创新工作室的卓越成果';
+const DEFAULT_SHARE_DESC = '探索国家级、省市级劳模工匠创新工作室的卓越成果';
 const DEFAULT_SHARE_IMAGE = '/static/share_thumb.png';
 
 let latestShareTaskId = 0;
@@ -100,6 +103,10 @@ const updateTimelineShareData = (wx, sharePayload) => {
 
 export const initWechatShare = async (shareData = {}) => {
   // #ifdef H5
+  if (!ENABLE_WECHAT_JS_SDK) {
+    return false;
+  }
+
   if (!isWechatBrowser()) {
     return false;
   }
