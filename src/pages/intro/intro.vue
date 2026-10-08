@@ -150,7 +150,6 @@
               <view class="gallery-info">
                 <text class="gallery-desc">{{ item.summary }}</text>
                 <view class="gallery-footer">
-                  <text class="date">{{ formatDate(item.createdAt, 'YYYY-MM-DD') }}</text>
                   <view class="more-link">
                     <text>查看更多</text>
                     <u-icon name="arrow-right" size="12" color="#3B82F6"></u-icon>
@@ -681,14 +680,20 @@ onMounted(() => {
     .image-overlay {
       position: absolute;
       top: 16rpx;
-      left: 16rpx;
+      right: 16rpx;
+      height: 40rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: rgba(0, 0, 0, 0.5);
-      padding: 4rpx 12rpx;
+      padding: 0 16rpx;
       border-radius: 8rpx;
+      box-sizing: border-box;
 
       .overlay-tag {
         color: #fff;
         font-size: 20rpx;
+        line-height: 1;
       }
     }
   }
@@ -704,13 +709,8 @@ onMounted(() => {
 
     .gallery-footer {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       margin-top: 16rpx;
-
-      .date {
-        font-size: 22rpx;
-        color: #94a3b8;
-      }
 
       .more-link {
         display: flex;

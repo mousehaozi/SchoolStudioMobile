@@ -39,6 +39,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [uni(), serveWechatVerifyPlugin()],
     base: "/studio-mobile",
+    optimizeDeps: {
+      // uview-plus 依赖 import.meta.glob 注册全局组件，且内部使用 up- 前缀走 easycom，
+      // 必须交给 uni/vite 编译管线处理，不能被 esbuild 预构建
+      exclude: ["uview-plus"],
+    },
     server: {
       host: "0.0.0.0",
       port: 8081,
